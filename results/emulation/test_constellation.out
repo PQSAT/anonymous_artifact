@@ -1,0 +1,107 @@
+--- 1. two satellites, ISL keyed from the provisioned pairwise key ---
+PASS ground hears SAT-1 housekeeping  [scid 0x101]
+PASS user hears SAT-2 housekeeping  [scid 0x102]
+PASS both ISL ends report SDLS keyed
+[GS] COP-1 ready, V(S)=0
+[USER1] COP-1 ready, V(S)=0
+PASS COP-1 initialised on both radio links
+[GS] SET_TIME tc_seq 0: OK  (593 ms)
+PASS clock set on SAT-1 by the ground
+PASS SAT-2 took its clock from SAT-1 over the ISL (SET_TIME is a ground command; SAT-2 has no ground)
+
+--- 2. user on SAT-2 authenticates with the ground on SAT-1 ---
+   MSG1   up     5692 B   25 segments  1 retx    55.4 s
+   MSG2   down  11402 B   59 frames    0 lost  0 NAK 0 repaired    94.0 s
+   MSG3   up     6678 B   29 segments  1 retx    63.6 s
+   MSG4   down  10186 B   53 frames    0 lost  0 NAK 0 repaired    84.1 s
+   MSG5   up       34 B    2 segments  1 retx     5.5 s
+   MSG6   down    114 B    1 frames    0 lost  0 NAK 0 repaired     0.7 s
+   MSG7   up      194 B    1 segments  0 retx     1.8 s
+   MSG7f  down    146 B    1 frames    0 lost  0 NAK 0 repaired     0.9 s
+   MSG8   up       34 B    1 segments  0 retx     0.8 s
+[USER1] SDLS started: TC VC1 protected on send, TM VC2 verified on receive
+   MSG8   down     66 B    1 frames    0 lost  0 NAK 0 repaired     0.5 s
+[GS] SDLS started: TC VC0 protected on send, TM VC4 verified on receive
+   total 34546 B, 58 uplink segments (3 retx), 115 downlink frames (0 lost), 307.2 s, keys agree: True
+PASS handshake completed through the ISL, keys agree  [307.239 s]
+PASS SAT-2 forwarded the user's MSG1 to the ground over the ISL
+PASS SAT-1 downlinked it to the ground
+PASS SAT-1 forwarded the ground's MSG3 to SAT-2 over the ISL
+PASS SAT-2 handled it as its own
+PASS SAT-2 keyed the user link at MSG8
+PASS SAT-2 sent the ground link key end to end to SAT-1
+PASS SAT-1 keyed the ground link from it
+PASS SAT-1 ground link transmit association started on TM VC4
+PASS SAT-2 user link transmit association started on TM VC2
+PASS SAT-1 did not key a user link it has no session for
+   ISL frames this handshake: SAT-2>SAT-1 107, SAT-1>SAT-2 63, 43350 octets on the ISL
+
+--- 3. protected user message across the constellation ---
+[USER1] message to GS: accepted by satellite
+PASS user's message accepted by COP-1 under SDLS on SAT-2
+
+[GS] message from USER1: constellation payload from user one via SAT-2 and SAT-1
+PASS ground received it from SAT-1
+PASS SAT-2 forwarded the relay over the ISL
+PASS SAT-1 downlinked the relay
+PASS the clear text crossed the ISL only inside SDLS frames  [175 ISL frames inspected]
+[GS] PING tc_seq 1: OK  (5209 ms)
+PASS ground command under SDLS on SAT-1: PING
+[USER1] PING tc_seq 0: NOT_ALLOWED  (768 ms)
+PASS user PING on SAT-2 under SDLS answered NOT_ALLOWED (users may not command a satellite, ICD)
+   protected TM frames verified: ground 1, user 0
+
+--- 4. ISL without a key: the session key is not handed over ---
+[GS] COP-1 ready, V(S)=0
+[USER1] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (591 ms)
+PASS clear ISL up
+PASS handshake itself still completes over a clear ISL (messages are self protecting)  [307.203 s]
+PASS SAT-2 did not send the ground link key over the clear ISL
+PASS SAT-1 never keyed the ground link
+
+--- 5. handover: the user retunes from SAT-2 to SAT-1 and authenticates there ---
+[GS] COP-1 ready, V(S)=0
+[USER1] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (594 ms)
+PASS links up
+[USER1] SDLS started: TC VC1 protected on send, TM VC2 verified on receive
+[GS] SDLS started: TC VC0 protected on send, TM VC4 verified on receive
+PASS session with SAT-2 established  [300.385 s]
+PASS user hears SAT-1
+[USER1] COP-1 ready, V(S)=0
+PASS COP-1 on the new link
+[USER1] SDLS started: TC VC1 protected on send, TM VC2 verified on receive
+[GS] SDLS rekeyed: TC VC0 protected on send, TM VC4 verified on receive
+PASS session with SAT-1 established directly, keys agree  [330.282 s]
+PASS new session key differs from the SAT-2 session
+PASS SAT-1 keyed its user link for the new session and rekeyed the ground link
+PASS no ISL traffic needed for the direct handshake  [SAT-1 ISL frames 98]
+[USER1] message to GS: accepted by satellite
+
+[GS] message from USER1: after handover
+PASS message delivered after handover
+   handover (retune, link up, new handshake): 338.7 s
+
+ISL frames per handshake (reference mode): SAT-2>SAT-1 107, SAT-1>SAT-2 63
+SAT-1 log, ISL lines:
+   SAT-1: ISL: neighbour SAT 0102 on TM VC5, SDLS keyed from the ISL key, ground station on own radio
+   SAT-1: ISL: auth message from 0102 for terminal 0001, 11402 bytes, downlinked
+   SAT-1: ISL: auth message from 0001 for SAT 0102 forwarded, 6678 bytes
+   SAT-1: ISL: auth message from 0102 for terminal 0001, 114 bytes, downlinked
+   SAT-1: ISL: auth message from 0001 for SAT 0102 forwarded, 194 bytes
+   SAT-1: ISL: auth message from 0102 for terminal 0001, 66 bytes, downlinked
+   SAT-1: ISL: ground link key received from SAT 0102, keying the ground station link
+SAT-2 log, ISL lines:
+   SAT-2: ISL: neighbour SAT 0101 on TM VC3, SDLS keyed from the ISL key, ground station via this neighbour
+   SAT-2: ISL: the feeder is SAT 0101
+   SAT-2: ISL: clock set from SAT 0101 (1794748696)
+   SAT-2: ISL: auth message for the ground station sent to SAT 0101, 11402 bytes
+   SAT-2: ISL: auth message from 0001 for this satellite, 6678 bytes
+   SAT-2: ISL: auth message for the ground station sent to SAT 0101, 114 bytes
+   SAT-2: ISL: auth message from 0001 for this satellite, 194 bytes
+   SAT-2: ISL: auth message for the ground station sent to SAT 0101, 66 bytes
+   SAT-2: ISL: ground link key sent end to end to the feeder SAT 0101
+
+37/37 checks passed
+rc=0

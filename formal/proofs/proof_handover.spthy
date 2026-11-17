@@ -1,0 +1,1261 @@
+theory PQSAT_Handover begin
+
+// Function signature and definition of the equational theory E
+
+functions: adec/2, aenc/2, fst/1, kdf/1, mac/2, pair/2, pk/1, sdec/2,
+           senc/2, sign/2, snd/1, true/0, verify/3
+equations:
+    adec(aenc(x.1, pk(x.2)), x.2) = x.1,
+    fst(<x.1, x.2>) = x.1,
+    sdec(senc(x.1, x.2), x.2) = x.1,
+    snd(<x.1, x.2>) = x.2,
+    verify(sign(x.1, x.2), x.1, pk(x.2)) = true
+
+
+
+
+
+
+
+
+
+
+
+rule (modulo E) Enroll_SAT:
+   [ Fr( ~ltkS ), Fr( ~ltkK ) ]
+  --[ Enrolled( $X ), SigKey( $X, ~ltkS ), KemKey( $X, ~ltkK ) ]->
+   [
+   !SatSig( $X, ~ltkS ), !SatKem( $X, ~ltkK ), !SatPkSig( $X, pk(~ltkS) ),
+   !SatPkKem( $X, pk(~ltkK) ), Out( pk(~ltkS) ), Out( pk(~ltkK) )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Established:
+   [ Fr( ~sk ), !SatSig( $S, ltkS ) ]
+  --[ Established( $U, $S, $G, ~sk ) ]->
+   [
+   UEKey( $U, ~sk ), !Serving( $S, $U, $G, ~sk ),
+   !GSHolds( $G, $U, $S, ~sk )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Reveal_Sig:
+   [ !SatSig( $X, ltkS ) ] --[ RevSig( $X ) ]-> [ Out( ltkS ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Reveal_Kem:
+   [ !SatKem( $X, ltkK ) ] --[ RevKem( $X ) ]-> [ Out( ltkK ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Compromise_Serving:
+   [ !Serving( $S, $U, $G, sk ) ]
+  --[ CompromisedSat( $S, sk ), Holds( $S, sk ) ]->
+   [ Out( sk ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Compromise_Feeder:
+   [ !FeederHolds( $F, k ) ] --[ CompromisedSat( $F, k ) ]-> [ Out( k ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Compromise_Next:
+   [ !NextHolds( $Sn, k ) ] --[ CompromisedSat( $Sn, k ) ]-> [ Out( k ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Glink_Send:
+   [
+   !Serving( $S, $U, $G, sk ), Fr( ~ss ), !SatSig( $S, ltkS ),
+   !SatPkKem( $F, pkF )
+   ]
+  --[
+  GlinkSent( $S, $F, kdf(<sk, 'ground-link'>) ),
+  GlinkOf( kdf(<sk, 'ground-link'>), sk ),
+  SrcOut( kdf(<sk, 'ground-link'>) ), Holds( $S, sk )
+  ]->
+   [
+   Out( <aenc(~ss, pkF), 
+         senc(<'GLINK', $S, $F, kdf(<sk, 'ground-link'>)>, kdf(~ss)), 
+         sign(<'GLINK', $S, $F, aenc(~ss, pkF), 
+               senc(<'GLINK', $S, $F, kdf(<sk, 'ground-link'>)>, kdf(~ss))>,
+              ltkS)
+        >
+   )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Glink_Accept:
+   [
+   In( <aenc(ss, pk(ltkK)), senc(<'GLINK', $S, $F, kgl>, kdf(ss)), sig> ),
+   !SatKem( $F, ltkK ), !SatPkSig( $S, pkS )
+   ]
+  --[
+  Eq( verify(sig,
+             <'GLINK', $S, $F, aenc(ss, pk(ltkK)), 
+              senc(<'GLINK', $S, $F, kgl>, kdf(ss))>,
+             pkS),
+      true
+  ),
+  GlinkAccepted( $F, $S, kgl ), SrcIn( kgl )
+  ]->
+   [ !FeederHolds( $F, kgl ) ]
+
+  /*
+  rule (modulo AC) Glink_Accept:
+     [
+     In( <aenc(ss, pk(ltkK)), senc(<'GLINK', $S, $F, kgl>, kdf(ss)), sig> ),
+     !SatKem( $F, ltkK ), !SatPkSig( $S, pkS )
+     ]
+    --[ Eq( z, true ), GlinkAccepted( $F, $S, kgl ), SrcIn( kgl ) ]->
+     [ !FeederHolds( $F, kgl ) ]
+    variants (modulo AC)
+    1. $F    = $F.11
+       $S    = $S.12
+       kgl   = kgl.13
+       ltkK  = ltkK.14
+       pkS   = pkS.15
+       sig   = sig.16
+       ss    = ss.17
+       z     = verify(sig.16,
+                      <'GLINK', $S.12, $F.11, aenc(ss.17, pk(ltkK.14)), 
+                       senc(<'GLINK', $S.12, $F.11, kgl.13>, kdf(ss.17))>,
+                      pkS.15)
+    
+    2. $F    = $F.16
+       $S    = $S.17
+       kgl   = kgl.18
+       ltkK  = ltkK.19
+       pkS   = pk(x.29)
+       sig   = sign(<'GLINK', $S.17, $F.16, aenc(ss.22, pk(ltkK.19)), 
+                     senc(<'GLINK', $S.17, $F.16, kgl.18>, kdf(ss.22))>,
+                    x.29)
+       ss    = ss.22
+       z     = true
+  */
+
+rule (modulo E) GS_Order_Handover:
+   [ !GSHolds( $G, $U, $S, sk ) ]
+  --[ HandoverOrdered( $G, $U, $S, $Sn, sk ) ]->
+   [ Out( mac(<'HANDOVER', $U, $S, $Sn>, kdf(<sk, 'order'>)) ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Sat_Handover:
+   [
+   In( mac(<'HANDOVER', $U, $S, $Sn>, kdf(<sk, 'order'>)) ),
+   !Serving( $S, $U, $G, sk ), Fr( ~ss ), !SatSig( $S, ltkS ),
+   !SatPkKem( $Sn, pkN )
+   ]
+  --[
+  HandoverSent( $S, $Sn, $U, kdf(<sk, 'next-link', $Sn>) ),
+  NextOf( kdf(<sk, 'next-link', $Sn>), sk ), Erased( $S, sk ),
+  Holds( $S, sk ), SrcOut( kdf(<sk, 'next-link', $Sn>) )
+  ]->
+   [
+   Out( <aenc(~ss, pkN), 
+         senc(<'USERSESS', $U, $S, $Sn, kdf(<sk, 'next-link', $Sn>)>, kdf(~ss)), 
+         sign(<'USERSESS', $S, $Sn, aenc(~ss, pkN), 
+               senc(<'USERSESS', $U, $S, $Sn, kdf(<sk, 'next-link', $Sn>)>, kdf(~ss))>,
+              ltkS)
+        >
+   )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Usersess_Accept:
+   [
+   In( <aenc(ss, pk(ltkK)), senc(<'USERSESS', $U, $S, $Sn, skn>, kdf(ss)), 
+        sig>
+   ),
+   !SatKem( $Sn, ltkK ), !SatPkSig( $S, pkS )
+   ]
+  --[
+  Eq( verify(sig,
+             <'USERSESS', $S, $Sn, aenc(ss, pk(ltkK)), 
+              senc(<'USERSESS', $U, $S, $Sn, skn>, kdf(ss))>,
+             pkS),
+      true
+  ),
+  HandoverAccepted( $Sn, $S, $U, skn ), SrcIn( skn )
+  ]->
+   [ !NextHolds( $Sn, skn ) ]
+
+  /*
+  rule (modulo AC) Usersess_Accept:
+     [
+     In( <aenc(ss, pk(ltkK)), senc(<'USERSESS', $U, $S, $Sn, skn>, kdf(ss)), 
+          sig>
+     ),
+     !SatKem( $Sn, ltkK ), !SatPkSig( $S, pkS )
+     ]
+    --[ Eq( z, true ), HandoverAccepted( $Sn, $S, $U, skn ), SrcIn( skn ) ]->
+     [ !NextHolds( $Sn, skn ) ]
+    variants (modulo AC)
+    1. $S    = $S.12
+       $Sn   = $Sn.13
+       $U    = $U.14
+       ltkK  = ltkK.15
+       pkS   = pkS.16
+       sig   = sig.17
+       skn   = skn.18
+       ss    = ss.19
+       z     = verify(sig.17,
+                      <'USERSESS', $S.12, $Sn.13, aenc(ss.19, pk(ltkK.15)), 
+                       senc(<'USERSESS', $U.14, $S.12, $Sn.13, skn.18>, kdf(ss.19))>,
+                      pkS.16)
+    
+    2. $S    = $S.18
+       $Sn   = $Sn.19
+       $U    = $U.20
+       ltkK  = ltkK.21
+       pkS   = pk(x.32)
+       sig   = sign(<'USERSESS', $S.18, $Sn.19, aenc(ss.25, pk(ltkK.21)), 
+                     senc(<'USERSESS', $U.20, $S.18, $Sn.19, skn.24>, kdf(ss.25))>,
+                    x.32)
+       skn   = skn.24
+       ss    = ss.25
+       z     = true
+  */
+
+rule (modulo E) UE_Handover:
+   [ UEKey( $U, sk ) ]
+  --[ UEHandover( $U, $Sn, kdf(<sk, 'next-link', $Sn>) ) ]->
+   [ UEKeyNext( $U, kdf(<sk, 'next-link', $Sn>) ) ]
+
+  /* has exactly the trivial AC variant */
+
+restriction Equality:
+  "∀ x y #i. (Eq( x, y ) @ #i) ⇒ (x = y)"
+  // safety formula
+
+restriction Erasure:
+  "∀ s k #i #j.
+    ((Erased( s, k ) @ #i) ∧ (Holds( s, k ) @ #j)) ⇒ ((#j < #i) ∨ (#j = #i))"
+  // safety formula
+
+restriction OneEnrollment:
+  "∀ x #i #j. ((Enrolled( x ) @ #i) ∧ (Enrolled( x ) @ #j)) ⇒ (#i = #j)"
+  // safety formula
+
+lemma types [sources]:
+  all-traces
+  "∀ x #i.
+    (SrcIn( x ) @ #i) ⇒
+    ((∃ #j. (!KU( x ) @ #j) ∧ (#j < #i)) ∨
+     (∃ #j. (SrcOut( x ) @ #j) ∧ (#j < #i)))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ x #i.
+  (SrcIn( x ) @ #i)
+ ∧
+  (∀ #j. (!KU( x ) @ #j) ⇒ ¬(#j < #i)) ∧
+  (∀ #j. (SrcOut( x ) @ #j) ⇒ ¬(#j < #i))"
+*/
+induction
+  case empty_trace
+  by contradiction /* from formulas */
+next
+  case non_empty_trace
+  simplify
+  solve( (last(#i))  ∥
+         (∃ #j. (!KU( x ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #i))  ∥
+         (∃ #j. (SrcOut( x ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #i)) )
+    case case_1
+    solve( SrcIn( x ) @ #i )
+      case Glink_Accept
+      solve( !SatKem( $F, ltkK ) ▶₁ #i )
+        case Enroll_SAT
+        solve( !SatPkSig( $S, pk(x.1) ) ▶₂ #i )
+          case Enroll_SAT
+          solve( !KU( sign(<'GLINK', $S, $F, aenc(ss, pk(~ltkK)), 
+                            senc(<'GLINK', $S, $F, x>, kdf(ss))>,
+                           ~ltkS)
+                 ) @ #vk.4 )
+            case Compromise_Feeder
+            solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.3))  ∥
+                   (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.3)) )
+              case case_1
+              by contradiction /* cyclic */
+            next
+              case case_2
+              solve( SrcOut( t ) @ #j )
+                case Glink_Send
+                by solve( (#vl, 0) ~~> (#vk, 0) )
+              next
+                case Sat_Handover
+                by solve( (#vl, 0) ~~> (#vk, 0) )
+              qed
+            qed
+          next
+            case Compromise_Next
+            solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.3))  ∥
+                   (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.3)) )
+              case case_1
+              by contradiction /* cyclic */
+            next
+              case case_2
+              solve( SrcOut( t ) @ #j )
+                case Glink_Send
+                by solve( (#vl, 0) ~~> (#vk, 0) )
+              next
+                case Sat_Handover
+                by solve( (#vl, 0) ~~> (#vk, 0) )
+              qed
+            qed
+          next
+            case Glink_Send
+            by contradiction /* from formulas */
+          next
+            case c_sign
+            solve( !KU( ~ltkS ) @ #vk.7 )
+              case Compromise_Feeder
+              solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.3))  ∥
+                     (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.3)) )
+                case case_1
+                by contradiction /* cyclic */
+              next
+                case case_2
+                solve( SrcOut( t ) @ #j )
+                  case Glink_Send
+                  by solve( (#vl, 0) ~~> (#vk.1, 0) )
+                next
+                  case Sat_Handover
+                  by solve( (#vl, 0) ~~> (#vk.1, 0) )
+                qed
+              qed
+            next
+              case Compromise_Next
+              solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.3))  ∥
+                     (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.3)) )
+                case case_1
+                by contradiction /* cyclic */
+              next
+                case case_2
+                solve( SrcOut( t ) @ #j )
+                  case Glink_Send
+                  by solve( (#vl, 0) ~~> (#vk.1, 0) )
+                next
+                  case Sat_Handover
+                  by solve( (#vl, 0) ~~> (#vk.1, 0) )
+                qed
+              qed
+            next
+              case Reveal_Sig
+              solve( !KU( aenc(ss, pk(~ltkK)) ) @ #vk.4 )
+                case Compromise_Feeder
+                solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.4))  ∥
+                       (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.4)) )
+                  case case_1
+                  by contradiction /* cyclic */
+                next
+                  case case_2
+                  solve( SrcOut( t ) @ #j )
+                    case Glink_Send
+                    by solve( (#vl.1, 0) ~~> (#vk.2, 0) )
+                  next
+                    case Sat_Handover
+                    by solve( (#vl.1, 0) ~~> (#vk.2, 0) )
+                  qed
+                qed
+              next
+                case Compromise_Next
+                solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.4))  ∥
+                       (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.4)) )
+                  case case_1
+                  by contradiction /* cyclic */
+                next
+                  case case_2
+                  solve( SrcOut( t ) @ #j )
+                    case Glink_Send
+                    by solve( (#vl.1, 0) ~~> (#vk.2, 0) )
+                  next
+                    case Sat_Handover
+                    by solve( (#vl.1, 0) ~~> (#vk.2, 0) )
+                  qed
+                qed
+              next
+                case Glink_Send
+                solve( !KU( senc(<'GLINK', $S, $F, x>, kdf(~ss)) ) @ #vk.8 )
+                  case Compromise_Feeder
+                  solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.8))  ∥
+                         (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.8)) )
+                    case case_1
+                    by contradiction /* cyclic */
+                  next
+                    case case_2
+                    solve( SrcOut( t ) @ #j )
+                      case Glink_Send
+                      by solve( (#vl.2, 0) ~~> (#vk.3, 0) )
+                    next
+                      case Sat_Handover
+                      by solve( (#vl.2, 0) ~~> (#vk.3, 0) )
+                    qed
+                  qed
+                next
+                  case Compromise_Next
+                  solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.8))  ∥
+                         (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.8)) )
+                    case case_1
+                    by contradiction /* cyclic */
+                  next
+                    case case_2
+                    solve( SrcOut( t ) @ #j )
+                      case Glink_Send
+                      by solve( (#vl.2, 0) ~~> (#vk.3, 0) )
+                    next
+                      case Sat_Handover
+                      by solve( (#vl.2, 0) ~~> (#vk.3, 0) )
+                    qed
+                  qed
+                next
+                  case Glink_Send
+                  by contradiction /* from formulas */
+                next
+                  case c_senc
+                  by contradiction /* from formulas */
+                qed
+              next
+                case Sat_Handover
+                solve( !KU( senc(<'GLINK', $S, $F, x>, kdf(~ss)) ) @ #vk.8 )
+                  case Compromise_Feeder
+                  solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.8))  ∥
+                         (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.8)) )
+                    case case_1
+                    by contradiction /* cyclic */
+                  next
+                    case case_2
+                    solve( SrcOut( t ) @ #j )
+                      case Glink_Send
+                      by solve( (#vl.2, 0) ~~> (#vk.3, 0) )
+                    next
+                      case Sat_Handover
+                      by solve( (#vl.2, 0) ~~> (#vk.3, 0) )
+                    qed
+                  qed
+                next
+                  case Compromise_Next
+                  solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.8))  ∥
+                         (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.8)) )
+                    case case_1
+                    by contradiction /* cyclic */
+                  next
+                    case case_2
+                    solve( SrcOut( t ) @ #j )
+                      case Glink_Send
+                      by solve( (#vl.2, 0) ~~> (#vk.3, 0) )
+                    next
+                      case Sat_Handover
+                      by solve( (#vl.2, 0) ~~> (#vk.3, 0) )
+                    qed
+                  qed
+                next
+                  case c_senc
+                  by contradiction /* from formulas */
+                qed
+              next
+                case c_aenc
+                solve( !KU( senc(<'GLINK', $S, $F, x>, kdf(ss)) ) @ #vk.8 )
+                  case Compromise_Feeder
+                  solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.4))  ∥
+                         (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.4)) )
+                    case case_1
+                    by contradiction /* cyclic */
+                  next
+                    case case_2
+                    solve( SrcOut( t ) @ #j )
+                      case Glink_Send
+                      by solve( (#vl.1, 0) ~~> (#vk.3, 0) )
+                    next
+                      case Sat_Handover
+                      by solve( (#vl.1, 0) ~~> (#vk.3, 0) )
+                    qed
+                  qed
+                next
+                  case Compromise_Next
+                  solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.4))  ∥
+                         (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.4)) )
+                    case case_1
+                    by contradiction /* cyclic */
+                  next
+                    case case_2
+                    solve( SrcOut( t ) @ #j )
+                      case Glink_Send
+                      by solve( (#vl.1, 0) ~~> (#vk.3, 0) )
+                    next
+                      case Sat_Handover
+                      by solve( (#vl.1, 0) ~~> (#vk.3, 0) )
+                    qed
+                  qed
+                next
+                  case Glink_Send
+                  by contradiction /* from formulas */
+                next
+                  case c_senc
+                  by contradiction /* from formulas */
+                qed
+              qed
+            qed
+          qed
+        qed
+      qed
+    next
+      case Usersess_Accept
+      solve( !SatKem( $Sn, ltkK ) ▶₁ #i )
+        case Enroll_SAT
+        solve( !SatPkSig( $S, pk(x.1) ) ▶₂ #i )
+          case Enroll_SAT
+          solve( !KU( sign(<'USERSESS', $S, $Sn, aenc(ss, pk(~ltkK)), 
+                            senc(<'USERSESS', $U, $S, $Sn, x>, kdf(ss))>,
+                           ~ltkS)
+                 ) @ #vk.4 )
+            case Compromise_Feeder
+            solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.3))  ∥
+                   (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.3)) )
+              case case_1
+              by contradiction /* cyclic */
+            next
+              case case_2
+              solve( SrcOut( t ) @ #j )
+                case Glink_Send
+                by solve( (#vl, 0) ~~> (#vk, 0) )
+              next
+                case Sat_Handover
+                by solve( (#vl, 0) ~~> (#vk, 0) )
+              qed
+            qed
+          next
+            case Compromise_Next
+            solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.3))  ∥
+                   (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.3)) )
+              case case_1
+              by contradiction /* cyclic */
+            next
+              case case_2
+              solve( SrcOut( t ) @ #j )
+                case Glink_Send
+                by solve( (#vl, 0) ~~> (#vk, 0) )
+              next
+                case Sat_Handover
+                by solve( (#vl, 0) ~~> (#vk, 0) )
+              qed
+            qed
+          next
+            case Sat_Handover
+            by contradiction /* from formulas */
+          next
+            case c_sign
+            solve( !KU( ~ltkS ) @ #vk.7 )
+              case Compromise_Feeder
+              solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.3))  ∥
+                     (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.3)) )
+                case case_1
+                by contradiction /* cyclic */
+              next
+                case case_2
+                solve( SrcOut( t ) @ #j )
+                  case Glink_Send
+                  by solve( (#vl, 0) ~~> (#vk.1, 0) )
+                next
+                  case Sat_Handover
+                  by solve( (#vl, 0) ~~> (#vk.1, 0) )
+                qed
+              qed
+            next
+              case Compromise_Next
+              solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.3))  ∥
+                     (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.3)) )
+                case case_1
+                by contradiction /* cyclic */
+              next
+                case case_2
+                solve( SrcOut( t ) @ #j )
+                  case Glink_Send
+                  by solve( (#vl, 0) ~~> (#vk.1, 0) )
+                next
+                  case Sat_Handover
+                  by solve( (#vl, 0) ~~> (#vk.1, 0) )
+                qed
+              qed
+            next
+              case Reveal_Sig
+              solve( !KU( aenc(ss, pk(~ltkK)) ) @ #vk.4 )
+                case Compromise_Feeder
+                solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.4))  ∥
+                       (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.4)) )
+                  case case_1
+                  by contradiction /* cyclic */
+                next
+                  case case_2
+                  solve( SrcOut( t ) @ #j )
+                    case Glink_Send
+                    by solve( (#vl.1, 0) ~~> (#vk.2, 0) )
+                  next
+                    case Sat_Handover
+                    by solve( (#vl.1, 0) ~~> (#vk.2, 0) )
+                  qed
+                qed
+              next
+                case Compromise_Next
+                solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.4))  ∥
+                       (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.4)) )
+                  case case_1
+                  by contradiction /* cyclic */
+                next
+                  case case_2
+                  solve( SrcOut( t ) @ #j )
+                    case Glink_Send
+                    by solve( (#vl.1, 0) ~~> (#vk.2, 0) )
+                  next
+                    case Sat_Handover
+                    by solve( (#vl.1, 0) ~~> (#vk.2, 0) )
+                  qed
+                qed
+              next
+                case Glink_Send
+                solve( !KU( senc(<'USERSESS', $U, $S, $Sn, x>, kdf(~ss)) ) @ #vk.8 )
+                  case Compromise_Feeder
+                  solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.8))  ∥
+                         (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.8)) )
+                    case case_1
+                    by contradiction /* cyclic */
+                  next
+                    case case_2
+                    solve( SrcOut( t ) @ #j )
+                      case Glink_Send
+                      by solve( (#vl.2, 0) ~~> (#vk.3, 0) )
+                    next
+                      case Sat_Handover
+                      by solve( (#vl.2, 0) ~~> (#vk.3, 0) )
+                    qed
+                  qed
+                next
+                  case Compromise_Next
+                  solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.8))  ∥
+                         (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.8)) )
+                    case case_1
+                    by contradiction /* cyclic */
+                  next
+                    case case_2
+                    solve( SrcOut( t ) @ #j )
+                      case Glink_Send
+                      by solve( (#vl.2, 0) ~~> (#vk.3, 0) )
+                    next
+                      case Sat_Handover
+                      by solve( (#vl.2, 0) ~~> (#vk.3, 0) )
+                    qed
+                  qed
+                next
+                  case c_senc
+                  by contradiction /* from formulas */
+                qed
+              next
+                case Sat_Handover
+                solve( !KU( senc(<'USERSESS', $U, $S, $Sn, x>, kdf(~ss)) ) @ #vk.8 )
+                  case Compromise_Feeder
+                  solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.8))  ∥
+                         (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.8)) )
+                    case case_1
+                    by contradiction /* cyclic */
+                  next
+                    case case_2
+                    solve( SrcOut( t ) @ #j )
+                      case Glink_Send
+                      by solve( (#vl.2, 0) ~~> (#vk.3, 0) )
+                    next
+                      case Sat_Handover
+                      by solve( (#vl.2, 0) ~~> (#vk.3, 0) )
+                    qed
+                  qed
+                next
+                  case Compromise_Next
+                  solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.8))  ∥
+                         (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.8)) )
+                    case case_1
+                    by contradiction /* cyclic */
+                  next
+                    case case_2
+                    solve( SrcOut( t ) @ #j )
+                      case Glink_Send
+                      by solve( (#vl.2, 0) ~~> (#vk.3, 0) )
+                    next
+                      case Sat_Handover
+                      by solve( (#vl.2, 0) ~~> (#vk.3, 0) )
+                    qed
+                  qed
+                next
+                  case Sat_Handover
+                  by contradiction /* from formulas */
+                next
+                  case c_senc
+                  by contradiction /* from formulas */
+                qed
+              next
+                case c_aenc
+                solve( !KU( senc(<'USERSESS', $U, $S, $Sn, x>, kdf(ss)) ) @ #vk.8 )
+                  case Compromise_Feeder
+                  solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.4))  ∥
+                         (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.4)) )
+                    case case_1
+                    by contradiction /* cyclic */
+                  next
+                    case case_2
+                    solve( SrcOut( t ) @ #j )
+                      case Glink_Send
+                      by solve( (#vl.1, 0) ~~> (#vk.3, 0) )
+                    next
+                      case Sat_Handover
+                      by solve( (#vl.1, 0) ~~> (#vk.3, 0) )
+                    qed
+                  qed
+                next
+                  case Compromise_Next
+                  solve( (∃ #j. (!KU( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.4))  ∥
+                         (∃ #j. (SrcOut( t ) @ #j) ∧ (¬(last(#j))) ∧ (#j < #vr.4)) )
+                    case case_1
+                    by contradiction /* cyclic */
+                  next
+                    case case_2
+                    solve( SrcOut( t ) @ #j )
+                      case Glink_Send
+                      by solve( (#vl.1, 0) ~~> (#vk.3, 0) )
+                    next
+                      case Sat_Handover
+                      by solve( (#vl.1, 0) ~~> (#vk.3, 0) )
+                    qed
+                  qed
+                next
+                  case Sat_Handover
+                  by contradiction /* from formulas */
+                next
+                  case c_senc
+                  by contradiction /* from formulas */
+                qed
+              qed
+            qed
+          qed
+        qed
+      qed
+    qed
+  next
+    case case_2
+    by contradiction /* from formulas */
+  next
+    case case_3
+    by contradiction /* from formulas */
+  qed
+qed
+
+lemma sig_key_secret [reuse]:
+  all-traces
+  "∀ X k #i #j.
+    ((SigKey( X, k ) @ #i) ∧ (!KU( k ) @ #j)) ⇒
+    (∃ #r. (RevSig( X ) @ #r) ∧ (#r < #j))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ X k #i #j.
+  (SigKey( X, k ) @ #i) ∧ (!KU( k ) @ #j)
+ ∧
+  ∀ #r. (RevSig( X ) @ #r) ⇒ ¬(#r < #j)"
+*/
+simplify
+solve( !KU( ~ltkS ) @ #j )
+  case Reveal_Sig
+  by contradiction /* from formulas */
+qed
+
+lemma kem_key_secret [reuse]:
+  all-traces
+  "∀ X k #i #j.
+    ((KemKey( X, k ) @ #i) ∧ (!KU( k ) @ #j)) ⇒
+    (∃ #r. (RevKem( X ) @ #r) ∧ (#r < #j))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ X k #i #j.
+  (KemKey( X, k ) @ #i) ∧ (!KU( k ) @ #j)
+ ∧
+  ∀ #r. (RevKem( X ) @ #r) ⇒ ¬(#r < #j)"
+*/
+simplify
+solve( !KU( ~ltkK ) @ #j )
+  case Reveal_Kem
+  by contradiction /* from formulas */
+qed
+
+lemma executable:
+  exists-trace
+  "∃ U S G Fd Sn sk kgl skn #a #b #g #c #d #e.
+    (((((((((((Established( U, S, G, sk ) @ #a) ∧
+              (GlinkAccepted( Fd, S, kgl ) @ #b)) ∧
+             (GlinkOf( kgl, sk ) @ #g)) ∧
+            (HandoverOrdered( G, U, S, Sn, sk ) @ #c)) ∧
+           (HandoverAccepted( Sn, S, U, skn ) @ #d)) ∧
+          (UEHandover( U, Sn, skn ) @ #e)) ∧
+         (¬(S = Fd))) ∧
+        (¬(S = Sn))) ∧
+       (¬(Fd = Sn))) ∧
+      (¬(∃ A #r. RevSig( A ) @ #r))) ∧
+     (¬(∃ A #r. RevKem( A ) @ #r))) ∧
+    (¬(∃ A k #r. CompromisedSat( A, k ) @ #r))"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ U S G Fd Sn sk kgl skn #a #b #g #c #d #e.
+  (Established( U, S, G, sk ) @ #a) ∧
+  (GlinkAccepted( Fd, S, kgl ) @ #b) ∧
+  (GlinkOf( kgl, sk ) @ #g) ∧
+  (HandoverOrdered( G, U, S, Sn, sk ) @ #c) ∧
+  (HandoverAccepted( Sn, S, U, skn ) @ #d) ∧
+  (UEHandover( U, Sn, skn ) @ #e)
+ ∧
+  (¬(S = Fd)) ∧
+  (¬(S = Sn)) ∧
+  (¬(Fd = Sn)) ∧
+  (∀ A #r. (RevSig( A ) @ #r) ⇒ ⊥) ∧
+  (∀ A #r. (RevKem( A ) @ #r) ⇒ ⊥) ∧
+  (∀ A k #r. (CompromisedSat( A, k ) @ #r) ⇒ ⊥)"
+*/
+simplify
+solve( !SatSig( $S, ltkS ) ▶₁ #a )
+  case Enroll_SAT
+  solve( !SatKem( $F, ltkK ) ▶₁ #b )
+    case Enroll_SAT
+    solve( !SatPkSig( $S, pk(x) ) ▶₂ #b )
+      case Enroll_SAT
+      solve( !Serving( $S.1, $U.1, $G.1, ~sk ) ▶₀ #g )
+        case Established
+        solve( !SatSig( $S, ltkS.1 ) ▶₂ #g )
+          case Enroll_SAT
+          solve( !SatPkKem( $F.1, pkF ) ▶₃ #g )
+            case Enroll_SAT
+            solve( !GSHolds( $G, $U, $S, ~sk ) ▶₀ #c )
+              case Established
+              solve( !SatKem( $Sn, ltkK.1 ) ▶₁ #d )
+                case Enroll_SAT
+                solve( !SatPkSig( $S, pk(x) ) ▶₂ #d )
+                  case Enroll_SAT
+                  solve( UEKey( $U, sk.1 ) ▶₀ #e )
+                    case Established
+                    solve( !KU( sign(<'GLINK', $S, $F, aenc(ss, pk(~ltkK)), 
+                                      senc(<'GLINK', $S, $F, kdf(<~sk, 'ground-link'>)>, kdf(ss))>,
+                                     ~ltkS)
+                           ) @ #vk.4 )
+                      case Glink_Send
+                      solve( !KU( sign(<'USERSESS', $S, $Sn, aenc(ss.1, pk(~ltkK.1)), 
+                                        senc(<'USERSESS', $U, $S, $Sn, kdf(<~sk.1, 'next-link', $Sn>)>,
+                                             kdf(ss.1))
+                                       >,
+                                       ~ltkS)
+                             ) @ #vk.9 )
+                        case Sat_Handover
+                        solve( !KU( mac(<'HANDOVER', $U, $S, $Sn>, kdf(<~sk.1, 'order'>))
+                               ) @ #vk.10 )
+                          case GS_Order_Handover
+                          solve( !KU( aenc(~ss, pk(~ltkK)) ) @ #vk.7 )
+                            case Glink_Send
+                            solve( !KU( senc(<'GLINK', $S, $F, kdf(<~sk, 'ground-link'>)>, kdf(~ss))
+                                   ) @ #vk.8 )
+                              case Glink_Send
+                              solve( !KU( aenc(~ss.1, pk(~ltkK.1)) ) @ #vk.9 )
+                                case Sat_Handover
+                                solve( !KU( senc(<'USERSESS', $U, $S, $Sn, kdf(<~sk.1, 'next-link', $Sn>)
+                                                 >,
+                                                 kdf(~ss.1))
+                                       ) @ #vk.10 )
+                                  case Sat_Handover
+                                  SOLVED // trace found
+                                qed
+                              qed
+                            qed
+                          qed
+                        qed
+                      qed
+                    qed
+                  qed
+                qed
+              qed
+            qed
+          qed
+        qed
+      qed
+    qed
+  qed
+qed
+
+lemma sk_secret:
+  all-traces
+  "∀ U S G sk #i #j.
+    ((Established( U, S, G, sk ) @ #i) ∧ (K( sk ) @ #j)) ⇒
+    (∃ #r. (CompromisedSat( S, sk ) @ #r) ∧ (#r < #j))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ U S G sk #i #j.
+  (Established( U, S, G, sk ) @ #i) ∧ (K( sk ) @ #j)
+ ∧
+  ∀ #r. (CompromisedSat( S, sk ) @ #r) ⇒ ¬(#r < #j)"
+*/
+simplify
+solve( !SatSig( $S, ltkS ) ▶₁ #i )
+  case Enroll_SAT
+  solve( !KU( ~sk ) @ #vk )
+    case Compromise_Serving
+    by contradiction /* from formulas */
+  qed
+qed
+
+lemma glink_secret:
+  all-traces
+  "∀ U S G sk kgl #i #g #j.
+    (((Established( U, S, G, sk ) @ #i) ∧ (GlinkOf( kgl, sk ) @ #g)) ∧
+     (K( kgl ) @ #j)) ⇒
+    (((∃ #r. CompromisedSat( S, sk ) @ #r) ∨
+      (∃ Fd #s #r. (GlinkSent( S, Fd, kgl ) @ #s) ∧ (RevKem( Fd ) @ #r))) ∨
+     (∃ Fd #r. CompromisedSat( Fd, kgl ) @ #r))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ U S G sk kgl #i #g #j.
+  (Established( U, S, G, sk ) @ #i) ∧
+  (GlinkOf( kgl, sk ) @ #g) ∧
+  (K( kgl ) @ #j)
+ ∧
+  (∀ #r. (CompromisedSat( S, sk ) @ #r) ⇒ ⊥) ∧
+  (∀ Fd #s #r. (GlinkSent( S, Fd, kgl ) @ #s) ∧ (RevKem( Fd ) @ #r) ⇒ ⊥) ∧
+  (∀ Fd #r. (CompromisedSat( Fd, kgl ) @ #r) ⇒ ⊥)"
+*/
+simplify
+solve( !SatSig( $S, ltkS ) ▶₁ #i )
+  case Enroll_SAT
+  solve( !Serving( $S, $U, $G, ~sk ) ▶₀ #g )
+    case Established
+    solve( !SatSig( $S, ltkS ) ▶₂ #g )
+      case Enroll_SAT
+      solve( !SatPkKem( $F, pkF ) ▶₃ #g )
+        case Enroll_SAT
+        solve( !KU( kdf(<~sk, 'ground-link'>) ) @ #vk )
+          case Compromise_Feeder
+          by contradiction /* from formulas */
+        next
+          case Compromise_Next
+          by contradiction /* from formulas */
+        next
+          case Glink_Send
+          solve( !KU( kdf(~ss.1) ) @ #vk.1 )
+            case c_kdf
+            solve( !KU( ~ss.1 ) @ #vk.2 )
+              case Glink_Send
+              by contradiction /* from formulas */
+            qed
+          qed
+        next
+          case c_kdf
+          solve( !KU( ~sk ) @ #vk.2 )
+            case Compromise_Serving
+            by contradiction /* from formulas */
+          qed
+        qed
+      qed
+    qed
+  qed
+qed
+
+lemma next_key_secret:
+  all-traces
+  "∀ U S G sk skn #i #g #j.
+    (((Established( U, S, G, sk ) @ #i) ∧ (NextOf( skn, sk ) @ #g)) ∧
+     (K( skn ) @ #j)) ⇒
+    (((∃ #r. CompromisedSat( S, sk ) @ #r) ∨
+      (∃ Sn #s #r.
+        (HandoverSent( S, Sn, U, skn ) @ #s) ∧ (RevKem( Sn ) @ #r))) ∨
+     (∃ Sn #r. CompromisedSat( Sn, skn ) @ #r))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ U S G sk skn #i #g #j.
+  (Established( U, S, G, sk ) @ #i) ∧
+  (NextOf( skn, sk ) @ #g) ∧
+  (K( skn ) @ #j)
+ ∧
+  (∀ #r. (CompromisedSat( S, sk ) @ #r) ⇒ ⊥) ∧
+  (∀ Sn #s #r.
+    (HandoverSent( S, Sn, U, skn ) @ #s) ∧ (RevKem( Sn ) @ #r) ⇒ ⊥) ∧
+  (∀ Sn #r. (CompromisedSat( Sn, skn ) @ #r) ⇒ ⊥)"
+*/
+simplify
+solve( !SatSig( $S, ltkS ) ▶₁ #i )
+  case Enroll_SAT
+  solve( !Serving( $S, $U, $G, ~sk ) ▶₁ #g )
+    case Established
+    solve( !SatSig( $S, ltkS ) ▶₃ #g )
+      case Enroll_SAT
+      solve( !SatPkKem( $Sn, pkN ) ▶₄ #g )
+        case Enroll_SAT
+        solve( !KU( mac(<'HANDOVER', $U, $S, $Sn>, kdf(<~sk, 'order'>)) ) @ #vk )
+          case GS_Order_Handover
+          solve( !KU( kdf(<~sk, 'next-link', $Sn>) ) @ #vk.1 )
+            case Compromise_Feeder
+            by contradiction /* from formulas */
+          next
+            case Compromise_Next
+            by contradiction /* from formulas */
+          next
+            case Sat_Handover
+            solve( (#vr.3 < #g)  ∥ (#vr.3 = #g) )
+              case case_1
+              by contradiction /* from formulas */
+            next
+              case case_2
+              solve( !KU( kdf(~ss) ) @ #vk.2 )
+                case c_kdf
+                solve( !KU( ~ss ) @ #vk.3 )
+                  case Sat_Handover
+                  by contradiction /* from formulas */
+                qed
+              qed
+            qed
+          next
+            case c_kdf
+            solve( !KU( ~sk ) @ #vk.3 )
+              case Compromise_Serving
+              by contradiction /* from formulas */
+            qed
+          qed
+        next
+          case c_mac
+          solve( !KU( kdf(<~sk, 'next-link', $Sn>) ) @ #vk.1 )
+            case Compromise_Feeder
+            by contradiction /* from formulas */
+          next
+            case Compromise_Next
+            by contradiction /* from formulas */
+          next
+            case Sat_Handover
+            solve( (#vr.2 < #g)  ∥ (#vr.2 = #g) )
+              case case_1
+              by contradiction /* from formulas */
+            next
+              case case_2
+              solve( !KU( kdf(<~sk, 'order'>) ) @ #vk.3 )
+                case c_kdf
+                solve( !KU( ~sk ) @ #vk.12 )
+                  case Compromise_Serving
+                  by contradiction /* from formulas */
+                qed
+              qed
+            qed
+          next
+            case c_kdf
+            solve( !KU( ~sk ) @ #vk.12 )
+              case Compromise_Serving
+              by contradiction /* from formulas */
+            qed
+          qed
+        qed
+      qed
+    qed
+  qed
+qed
+
+lemma glink_authentic:
+  all-traces
+  "∀ Fd S kgl #i.
+    (GlinkAccepted( Fd, S, kgl ) @ #i) ⇒
+    ((∃ #j. (GlinkSent( S, Fd, kgl ) @ #j) ∧ (#j < #i)) ∨
+     (∃ #r. (RevSig( S ) @ #r) ∧ (#r < #i)))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ Fd S kgl #i.
+  (GlinkAccepted( Fd, S, kgl ) @ #i)
+ ∧
+  (∀ #j. (GlinkSent( S, Fd, kgl ) @ #j) ⇒ ¬(#j < #i)) ∧
+  (∀ #r. (RevSig( S ) @ #r) ⇒ ¬(#r < #i))"
+*/
+simplify
+solve( !SatKem( $F, ltkK ) ▶₁ #i )
+  case Enroll_SAT
+  solve( !SatPkSig( $S, pk(x) ) ▶₂ #i )
+    case Enroll_SAT
+    solve( !KU( sign(<'GLINK', $S, $F, aenc(ss, pk(~ltkK)), 
+                      senc(<'GLINK', $S, $F, kgl>, kdf(ss))>,
+                     ~ltkS)
+           ) @ #vk.4 )
+      case Glink_Send
+      by contradiction /* from formulas */
+    next
+      case c_sign
+      by contradiction /* from formulas */
+    qed
+  qed
+qed
+
+lemma handover_authentic:
+  all-traces
+  "∀ Sn S U skn #i.
+    (HandoverAccepted( Sn, S, U, skn ) @ #i) ⇒
+    (((∃ G sk #j #k.
+        ((((HandoverSent( S, Sn, U, skn ) @ #j) ∧ (#j < #i)) ∧
+          (HandoverOrdered( G, U, S, Sn, sk ) @ #k)) ∧
+         (#k < #j)) ∧
+        (NextOf( skn, sk ) @ #j)) ∨
+      (∃ #r. (RevSig( S ) @ #r) ∧ (#r < #i))) ∨
+     (∃ sk #r. (CompromisedSat( S, sk ) @ #r) ∧ (#r < #i)))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ Sn S U skn #i.
+  (HandoverAccepted( Sn, S, U, skn ) @ #i)
+ ∧
+  (∀ G sk #j #k.
+    (HandoverSent( S, Sn, U, skn ) @ #j) ∧
+    (HandoverOrdered( G, U, S, Sn, sk ) @ #k) ∧
+    (NextOf( skn, sk ) @ #j)
+   ⇒
+    ((¬(#j < #i)) ∨ (¬(#k < #j)))) ∧
+  (∀ #r. (RevSig( S ) @ #r) ⇒ ¬(#r < #i)) ∧
+  (∀ sk #r. (CompromisedSat( S, sk ) @ #r) ⇒ ¬(#r < #i))"
+*/
+simplify
+solve( !SatKem( $Sn, ltkK ) ▶₁ #i )
+  case Enroll_SAT
+  solve( !SatPkSig( $S, pk(x) ) ▶₂ #i )
+    case Enroll_SAT
+    solve( !KU( sign(<'USERSESS', $S, $Sn, aenc(ss, pk(~ltkK)), 
+                      senc(<'USERSESS', $U, $S, $Sn, skn>, kdf(ss))>,
+                     ~ltkS)
+           ) @ #vk.4 )
+      case Sat_Handover
+      solve( !KU( mac(<'HANDOVER', $U, $S, $Sn>, kdf(<~sk, 'order'>))
+             ) @ #vk.5 )
+        case GS_Order_Handover
+        by contradiction /* from formulas */
+      next
+        case c_mac
+        solve( !KU( kdf(<~sk, 'order'>) ) @ #vk.7 )
+          case c_kdf
+          solve( !KU( ~sk ) @ #vk.15 )
+            case Compromise_Serving
+            by contradiction /* from formulas */
+          qed
+        qed
+      qed
+    next
+      case c_sign
+      by contradiction /* from formulas */
+    qed
+  qed
+qed
+
+lemma R1_serving_satellite_holds_sk:
+  exists-trace
+  "∃ U S G sk #i #j.
+    (((Established( U, S, G, sk ) @ #i) ∧ (K( sk ) @ #j)) ∧
+     (¬(∃ A #r. RevSig( A ) @ #r))) ∧
+    (¬(∃ A #r. RevKem( A ) @ #r))"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ U S G sk #i #j.
+  (Established( U, S, G, sk ) @ #i) ∧ (K( sk ) @ #j)
+ ∧
+  (∀ A #r. (RevSig( A ) @ #r) ⇒ ⊥) ∧ (∀ A #r. (RevKem( A ) @ #r) ⇒ ⊥)"
+*/
+simplify
+solve( !SatSig( $S, ltkS ) ▶₁ #i )
+  case Enroll_SAT
+  solve( !KU( ~sk ) @ #vk )
+    case Compromise_Serving
+    SOLVED // trace found
+  qed
+qed
+
+lemma R2_leaked_satellite_signing_key:
+  exists-trace
+  "∃ Sn S U skn #i #j.
+    ((((HandoverAccepted( Sn, S, U, skn ) @ #i) ∧ (K( skn ) @ #j)) ∧
+      (¬(∃ A k #r. CompromisedSat( A, k ) @ #r))) ∧
+     (¬(∃ A #r. RevKem( A ) @ #r))) ∧
+    (¬(∃ G2 U2 S2 Sx sk2 #r. HandoverOrdered( G2, U2, S2, Sx, sk2 ) @ #r))"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ Sn S U skn #i #j.
+  (HandoverAccepted( Sn, S, U, skn ) @ #i) ∧ (K( skn ) @ #j)
+ ∧
+  (∀ A k #r. (CompromisedSat( A, k ) @ #r) ⇒ ⊥) ∧
+  (∀ A #r. (RevKem( A ) @ #r) ⇒ ⊥) ∧
+  (∀ G2 U2 S2 Sx sk2 #r.
+    (HandoverOrdered( G2, U2, S2, Sx, sk2 ) @ #r) ⇒ ⊥)"
+*/
+simplify
+solve( !SatKem( $Sn, ltkK ) ▶₁ #i )
+  case Enroll_SAT
+  solve( !SatPkSig( $S, pk(x) ) ▶₂ #i )
+    case Enroll_SAT
+    solve( !KU( sign(<'USERSESS', $S, $Sn, aenc(ss, pk(~ltkK)), 
+                      senc(<'USERSESS', $U, $S, $Sn, skn>, kdf(ss))>,
+                     ~ltkS)
+           ) @ #vk.4 )
+      case c_sign
+      solve( !SatSig( $S, ltkS.2 ) ▶₀ #r )
+        case Enroll_SAT
+        solve( !KU( aenc(ss, pk(~ltkK)) ) @ #vk.4 )
+          case c_aenc
+          solve( !KU( senc(<'USERSESS', $U, $S, $Sn, skn>, kdf(ss)) ) @ #vk.8 )
+            case c_senc
+            solve( !KU( kdf(ss) ) @ #vk.19 )
+              case c_kdf
+              solve( !KU( ~ltkS ) @ #vk.4 )
+                case Reveal_Sig
+                solve( !SatSig( $S, ltkS.2 ) ▶₀ #r.1 )
+                  case Enroll_SAT
+                  solve( !KU( pk(~ltkK) ) @ #vk.20 )
+                    case Enroll_SAT
+                    SOLVED // trace found
+                  qed
+                qed
+              qed
+            qed
+          qed
+        qed
+      qed
+    qed
+  qed
+qed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.10.0
+Maude version 3.5
+Git revision: cb62c305f8c8b8c1e664152aa33c95b7b8d5ef32, branch: master
+Compiled at: 2024-10-30 11:11:02.432289291 UTC
+*/
+
+end

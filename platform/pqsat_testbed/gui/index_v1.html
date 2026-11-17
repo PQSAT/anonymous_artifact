@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Constellation Testbed</title>
+<style>
+:root{--bg:#f6f7f9;--panel:#fff;--ink:#1b1f24;--muted:#5b6470;--line:#d9dee5;--ok:#1c8f4c;--warn:#c47a00;--bad:#c0392b;--acc:#2456a4;--sec:#7b3fb3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1217;--panel:#171b22;--ink:#e6e9ee;--muted:#9aa4b1;--line:#2a313b;--acc:#6f9ae8;--sec:#b38ae0}}
+:root[data-theme="dark"]{--bg:#0f1217;--panel:#171b22;--ink:#e6e9ee;--muted:#9aa4b1;--line:#2a313b;--acc:#6f9ae8;--sec:#b38ae0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,Segoe UI,Roboto,sans-serif;padding:16px}
+h1{font-size:18px;margin:0 0 12px}h2{font-size:13px;margin:0 0 8px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;min-width:0}
+.wide{grid-column:1/-1}
+svg{width:100%;height:auto}
+.node{fill:var(--panel);stroke:var(--ink);stroke-width:1.5}.node.serving{stroke:var(--acc);stroke-width:3}
+.lbl{font:12px system-ui;fill:var(--ink)}.sub{font:10px system-ui;fill:var(--muted)}
+.link{stroke-width:3;stroke:var(--line)}.link.clear{stroke:var(--warn)}.link.sdls{stroke:var(--ok)}.link.down{stroke:var(--line);stroke-dasharray:4 4}
+table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{text-align:left;padding:3px 6px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:600}
+.bar{height:10px;background:var(--line);border-radius:5px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc)}
+.log{font:11.5px ui-monospace,Menlo,Consolas,monospace;max-height:260px;overflow:auto;white-space:pre-wrap}
+.log .s1{color:var(--acc)}.log .s2{color:var(--sec)}
+label{display:block;font-size:12px;color:var(--muted);margin-top:6px}select,input,button{font:inherit;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);width:100%}
+button{background:var(--acc);color:#fff;border:0;cursor:pointer;margin-top:10px}button.alt{background:var(--panel);color:var(--ink);border:1px solid var(--line)}
+.kv{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:12.5px}.kv b{font-weight:600}
+.pill{display:inline-block;padding:1px 7px;border-radius:10px;font-size:11px;background:var(--line)}.pill.ok{background:var(--ok);color:#fff}.pill.bad{background:var(--bad);color:#fff}.pill.run{background:var(--acc);color:#fff}
+canvas{width:100%;height:120px}
+</style>
+</head>
+<body>
+<h1>Constellation testbed <span id="conn" class="pill">connecting</span> <span id="runstate" class="pill">idle</span></h1>
+<div class="grid">
+  <div class="panel wide">
+    <h2>Constellation</h2>
+    <svg id="topo" viewBox="0 0 900 170" aria-label="constellation view">
+      <line id="l-gs" class="link down" x1="150" y1="85" x2="330" y2="85"/>
+      <line id="l-isl" class="link down" x1="430" y1="85" x2="520" y2="85"/>
+      <line id="l-ue" class="link down" x1="620" y1="85" x2="790" y2="85"/>
+      <circle class="node" cx="100" cy="85" r="34"/><text class="lbl" x="100" y="82" text-anchor="middle">Ground</text><text class="sub" x="100" y="97" text-anchor="middle">0x0001</text>
+      <rect id="n-sat1" class="node" x="330" y="55" width="100" height="60" rx="8"/><text class="lbl" x="380" y="80" text-anchor="middle">SAT-1</text><text class="sub" x="380" y="96" text-anchor="middle">0x101 feeder</text>
+      <rect id="n-sat2" class="node" x="520" y="55" width="100" height="60" rx="8"/><text class="lbl" x="570" y="80" text-anchor="middle">SAT-2</text><text class="sub" x="570" y="96" text-anchor="middle">0x102 serving</text>
+      <circle class="node" cx="830" cy="85" r="34"/><text class="lbl" x="830" y="82" text-anchor="middle">User</text><text class="sub" x="830" y="97" text-anchor="middle">0x0011</text>
+      <text id="t-gs" class="sub" x="240" y="70" text-anchor="middle">ground link</text>
+      <text id="t-isl" class="sub" x="475" y="70" text-anchor="middle">ISL</text>
+      <text id="t-ue" class="sub" x="705" y="70" text-anchor="middle">user link</text>
+      <text id="t-serving" class="sub" x="450" y="150" text-anchor="middle">serving satellite of the user: none</text>
+    </svg>
+    <div class="kv" id="linkkv"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Run control</h2>
+    <label>Experiment</label><select id="f-exp"></select>
+    <label>Backend</label><select id="f-backend"><option>emulator</option><option>hardware</option></select>
+    <label>Topology</label><select id="f-topo"><option>single</option><option>constellation</option><option>chain</option></select>
+    <label>Protocol</label><select id="f-proto"></select>
+    <label>Link model (emulator)</label><select id="f-link"></select>
+    <label>Certificate mode</label><select id="f-mode"><option value="ref">reference</option><option value="full">full</option></select>
+    <label>Runs / messages</label><input id="f-runs" type="number" value="1" min="1">
+    <button id="go">Start</button>
+    <button id="replay" class="alt">Replay selected run on the emulator</button>
+  </div>
+
+  <div class="panel">
+    <h2>Handshake progress</h2>
+    <div id="hs"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Live metrics</h2>
+    <div class="kv" id="metrics"></div>
+    <canvas id="rtt" aria-label="link RTT per segment"></canvas>
+  </div>
+
+  <div class="panel wide">
+    <h2>Runs</h2>
+    <table id="runs"><thead><tr><th>id</th><th>experiment</th><th>backend</th><th>topology</th><th>protocol</th><th>mode</th><th>status</th><th>summary</th></tr></thead><tbody></tbody></table>
+  </div>
+
+  <div class="panel wide">
+    <h2>Satellite events</h2>
+    <div id="log" class="log"></div>
+  </div>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const MSGS=["MSG1","MSG2","MSG3","MSG4","MSG5","MSG6","MSG7","MSG7f","MSG8","MSG8"];
+let selected=null, rtts=[], msgs={}, links={gs:"down",isl:"down",ue:"down"}, serving=null;
+function pill(el,text,cls){el.textContent=text;el.className="pill "+(cls||"")}
+async function j(u,o){const r=await fetch(u,o);return r.json()}
+async function loadCatalogue(){const c=await j("/api/catalogue");
+  const fill=(id,obj)=>{const s=$(id);s.innerHTML="";for(const k in obj){const o=document.createElement("option");o.value=k;o.textContent=k+" : "+obj[k].description;s.appendChild(o)}};
+  fill("#f-exp",c.experiments);fill("#f-proto",c.protocols);fill("#f-link",c.links)}
+async function loadRuns(){const rs=await j("/api/runs?limit=60");const tb=$("#runs tbody");tb.innerHTML="";
+  for(const r of rs){const tr=document.createElement("tr");const s=r.summary||{};
+    const sum=s.error?("error: "+s.error):(s.mean_seconds!==undefined?`${s.ok}/${s.runs} ok, mean ${s.mean_seconds} s, goodput ${s.mean_goodput_Bps??"?"} B/s`:(s.throughput_Bps!==undefined?`${s.delivered}/${s.messages} delivered, ${s.throughput_Bps} B/s, latency ${s.latency_ms&&s.latency_ms.mean} ms, RTT ${s.app_rtt_ms&&s.app_rtt_ms.mean} ms`:(s.handover_seconds!==undefined?`handover ${s.handover_seconds} s, second handshake ${s.second&&s.second.seconds} s`:JSON.stringify(s).slice(0,120))));
+    tr.innerHTML=`<td>${r.id}</td><td>${r.experiment}</td><td>${r.backend}</td><td>${r.topology}</td><td>${r.protocol}</td><td>${r.mode}</td><td><span class="pill ${r.status==="done"?"ok":(r.status==="failed"?"bad":"run")}">${r.status}</span></td><td>${sum}</td>`;
+    tr.onclick=()=>{selected=r.id;[...tb.children].forEach(x=>x.style.background="");tr.style.background="rgba(36,86,164,.12)";loadRun(r.id)};tb.appendChild(tr)}}
+async function loadRun(id){const hs=await j(`/api/runs/${id}/handshakes`);if(hs.length){const h=hs[hs.length-1];msgs={};for(const m of (h.record.messages||[]))msgs[m.msg+m.direction]=m;drawHs(h.record)}
+  const ev=await j(`/api/runs/${id}/events`);$("#log").innerHTML=ev.map(e=>`<div class="${e.node==="sat1"?"s1":"s2"}">${e.node.toUpperCase()}: ${e.text}</div>`).join("");
+  const sm=await j(`/api/runs/${id}/samples?kind=seg_rtt`);rtts=sm.map(x=>x.value);drawRtt()}
+function drawHs(rec){const d=$("#hs");const ms=rec&&rec.messages||[];let html="";
+  for(const m of ms){const dir=m.direction==="up"?"&#8593;":"&#8595;";html+=`<div style="display:flex;gap:8px;align-items:center;margin:3px 0"><span style="width:52px">${m.msg} ${dir}</span><div class="bar" style="flex:1"><i style="width:100%"></i></div><span style="width:220px;color:var(--muted);font-size:12px">${m.octets} B, ${m.segments??m.frames} ${m.segments!==undefined?"seg":"frames"}, ${m.retransmissions??m.lost} ${m.retransmissions!==undefined?"retx":"lost"}, ${m.seconds} s</span></div>`}
+  if(rec&&rec.seconds!==undefined)html+=`<div style="margin-top:6px"><b>${rec.ok?"complete":"failed"}</b> ${rec.seconds} s, ${rec.octets_total} B, keys agree: ${rec.sk_user&&rec.sk_user===rec.sk_ground}</div>`;
+  d.innerHTML=html||"<span style='color:var(--muted)'>no handshake yet</span>"}
+function drawRtt(){const c=$("#rtt"),x=c.getContext("2d");const W=c.width=c.clientWidth*2,H=c.height=240;x.clearRect(0,0,W,H);if(!rtts.length)return;
+  const mx=Math.max(...rtts)*1.1;x.strokeStyle=getComputedStyle(document.body).getPropertyValue("--acc");x.lineWidth=2;x.beginPath();
+  rtts.slice(-200).forEach((v,i,a)=>{const px=i/(a.length-1||1)*W,py=H-10-v/mx*(H-50);i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke();
+  x.fillStyle=getComputedStyle(document.body).getPropertyValue("--muted");x.font="22px system-ui";x.fillText(`link RTT per segment, ms (max ${Math.round(mx/1.1)})`,10,26)}
+function setLink(id,st){links[id]=st;const el=$("#l-"+id);el.setAttribute("class","link "+st);$("#t-"+id).textContent=({gs:"ground link",isl:"ISL",ue:"user link"})[id]+": "+st}
+function setServing(s){serving=s;$("#n-sat1").classList.toggle("serving",s==="sat1");$("#n-sat2").classList.toggle("serving",s==="sat2");$("#t-serving").textContent="serving satellite of the user: "+(s?s.toUpperCase().replace("SAT","SAT-"):"none")}
+function applyState(st){if(!st||st.idle){return}setServing(st.serving);
+  if(st.topology==="single"){setLink("isl","down");$("#n-sat2").style.opacity=.3}else{$("#n-sat2").style.opacity=1}
+  const gsHk=st.gs&&st.gs.hk,ueHk=st.ue&&st.ue.hk;setLink("gs",gsHk?(st.gs.sdls?"sdls":"clear"):"down");setLink("ue",ueHk?(st.ue.sdls?"sdls":"clear"):"down");
+  if(st.topology!=="single")setLink("isl","sdls");
+  const kv=$("#linkkv");kv.innerHTML="";const add=(k,v)=>{kv.insertAdjacentHTML("beforeend",`<span>${k}</span><b>${v}</b>`)};
+  if(gsHk)add("SAT-1 housekeeping",`up ${gsHk.uptime_s}s, rx ${gsHk.rx_frames}, time set ${gsHk.time_set}`);
+  if(ueHk)add(`${serving?serving.toUpperCase():"serving"} housekeeping at the user`,`up ${ueHk.uptime_s}s, rx ${ueHk.rx_frames}`);
+  if(st.gs)add("ground link stats",`tc ${st.gs.stats.tc_frames} (retx ${st.gs.stats.tc_retx}) tm ${st.gs.stats.tm_frames} lost ${st.gs.stats.tm_lost} sdls ok ${st.gs.stats.sdls_tm_ok}`);
+  if(st.ue)add("user link stats",`tc ${st.ue.stats.tc_frames} (retx ${st.ue.stats.tc_retx}) tm ${st.ue.stats.tm_frames} lost ${st.ue.stats.tm_lost} sdls ok ${st.ue.stats.sdls_tm_ok}`);
+  if(st.sats)for(const n in st.sats){if(st.sats[n].isl_tx!==undefined)add(`${n.toUpperCase()} ISL frames sent`,st.sats[n].isl_tx)}}
+function onEvent(ev){const e=ev.event;
+  if(e==="run_start"){pill($("#runstate"),"running "+ev.config.experiment,"run");msgs={};$("#hs").innerHTML="";$("#log").innerHTML="";rtts=[];drawRtt();$("#metrics").innerHTML=""}
+  if(e==="links_up")applyState(ev.state);
+  if(e==="handshake_done"){const m=ev.metrics||{};const kv=$("#metrics");kv.innerHTML="";const add=(k,v)=>kv.insertAdjacentHTML("beforeend",`<span>${k}</span><b>${v}</b>`);
+    add("handshake",`${ev.ok?"complete":"failed"} in ${ev.seconds} s`);if(m.goodput_Bps)add("goodput",m.goodput_Bps+" B/s");
+    if(m.user){add("user link RTT (mean / p95)",`${m.user.link_rtt_ms.mean} / ${m.user.link_rtt_ms.p95} ms`);add("user channel utilisation",`tx ${(m.user.bandwidth.utilisation_tx*100).toFixed(1)}% rx ${(m.user.bandwidth.utilisation_rx*100).toFixed(1)}% of ${m.user.bandwidth.channel_bps} bit/s`)}
+    if(m.ground){add("ground link RTT (mean / p95)",`${m.ground.link_rtt_ms.mean} / ${m.ground.link_rtt_ms.p95} ms`);add("ground channel utilisation",`tx ${(m.ground.bandwidth.utilisation_tx*100).toFixed(1)}% rx ${(m.ground.bandwidth.utilisation_rx*100).toFixed(1)}%`)}
+    if(m.isl_frames)add("ISL frames",JSON.stringify(m.isl_frames));loadRuns();if(ev.run_id)loadRun(ev.run_id)}
+  if(e==="message"){$("#metrics").insertAdjacentHTML("beforeend",`<span>message ${ev.n}</span><b>${ev.ok?ev.latency_ms+" ms one way":"lost"}</b>`)}
+  if(e==="ping"){$("#metrics").insertAdjacentHTML("beforeend",`<span>PING ${ev.n}</span><b>${ev.result}</b>`)}
+  if(e==="retuned"){setServing(ev.to);$("#log").insertAdjacentHTML("beforeend",`<div>user retuned to ${ev.to}, link ${ev.link_up?"up":"down"}</div>`)}
+  if(e==="run_done"||e==="run_failed"){pill($("#runstate"),e==="run_done"?"idle":"failed",e==="run_done"?"":"bad");loadRuns();if(ev.run_id)loadRun(ev.run_id)}}
+function connect(){const ws=new WebSocket((location.protocol==="https:"?"wss://":"ws://")+location.host+"/api/live");
+  ws.onopen=()=>pill($("#conn"),"live","ok");ws.onclose=()=>{pill($("#conn"),"disconnected","bad");setTimeout(connect,2000)};
+  ws.onmessage=m=>{try{onEvent(JSON.parse(m.data))}catch(e){}}}
+$("#go").onclick=async()=>{const exp=$("#f-exp").value;const params={};const n=parseInt($("#f-runs").value||"1");if(exp==="handshake")params.runs=n;if(exp==="traffic"){params.messages=n;params.pings=3}
+  const r=await j("/api/runs",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({experiment:exp,backend:$("#f-backend").value,topology:$("#f-topo").value,protocol:$("#f-proto").value,link:$("#f-link").value,mode:$("#f-mode").value,params})});
+  pill($("#runstate"),"queued "+r.run_id,"run");loadRuns()};
+$("#replay").onclick=async()=>{if(!selected)return alert("select a run in the table first");await j(`/api/runs/${selected}/replay`,{method:"POST"});loadRuns()};
+setInterval(async()=>{try{applyState(await j("/api/state"))}catch(e){}},2000);
+loadCatalogue();loadRuns();connect();drawHs(null);
+</script>
+</body>
+</html>

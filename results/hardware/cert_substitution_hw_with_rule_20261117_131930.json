@@ -1,0 +1,27 @@
+{
+ "started": "2026-11-17 12:53:52",
+ "rule_on_board": true,
+ "attempts": [
+  {
+   "n": 1,
+   "reached": "MSG4",
+   "error": "nothing from the satellite within 300 s",
+   "seconds": 600.6,
+   "adversary_has_sk": false,
+   "user_holds_forged": false
+  },
+  {
+   "n": 2,
+   "reached": "MSG4",
+   "error": "nothing from the satellite within 300 s",
+   "seconds": 598.9,
+   "adversary_has_sk": false,
+   "user_holds_forged": false
+  }
+ ],
+ "honest_after": {
+  "ok": true,
+  "seconds": 327.299,
+  "octets": 34546
+ }
+}

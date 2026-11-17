@@ -1,0 +1,36 @@
+[GS] COP-1 ready, V(S)=0
+[USER1] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (596 ms)
+PASS link up
+
+--- A2 forged MSG3 and A4 junk MSG1 during a live handshake ---
+PASS MSG1 acknowledged
+PASS MSG2 reached the ground
+PASS A4 junk MSG1 accepted by COP-1 (link layer cannot tell)
+PASS A4 junk MSG1 rejected by the satellite  [user signature rejected]
+PASS A2 forged MSG3 accepted by COP-1 (link layer cannot tell)
+PASS A2 forged MSG3 rejected by the satellite  [ground station signature rejected]
+PASS A2 no MSG4 produced for the forgery
+PASS genuine MSG3 acknowledged
+PASS MSG4 reached the user
+PASS genuine MSG8 (forwarded with tag_s) reached the ground
+PASS live handshake survived both injections and completed, keys agree
+
+--- A1 replay of the captured MSG1 ---
+PASS A1 replayed MSG1 accepted by COP-1
+PASS A1 replay rejected by the satellite  [replayed MSG1]
+PASS A1 no MSG2 produced for the replay
+PASS A1 ground saw no MSG2
+
+--- A3 MSG1 older than the freshness window ---
+PASS A3 stale MSG1 acknowledged by COP-1
+PASS A3 stale MSG1 rejected by the satellite  [stale timestamp]
+
+satellite log, attack related lines:
+   SAT: auth: handshake failed: user signature rejected
+   SAT: auth: message rejected: ground station signature rejected
+   SAT: auth: handshake failed: replayed MSG1
+   SAT: auth: handshake failed: stale timestamp
+
+18/18 checks passed
+rc=0

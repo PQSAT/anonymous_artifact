@@ -1,0 +1,86 @@
+{
+ "restarts": 5,
+ "frames_per_generation": 10,
+ "A": {
+  "key_fingerprint": "a3c952787eb34ca6",
+  "recorded": 10,
+  "replay_rejected": 0,
+  "replay_accepted": 10,
+  "commands_executed_again": 10,
+  "ivs_reused": 10,
+  "frames_after": 10,
+  "first_counter_after": 1
+ },
+ "B": [
+  {
+   "restart": 1,
+   "up": true,
+   "key_fingerprint": "5d3313d6b8c76a41",
+   "first_counter": 1,
+   "recorded": 10,
+   "replay_rejected": 10,
+   "commands_executed_again": 0,
+   "new_commands_ok": 10,
+   "pairs_repeated": 0
+  },
+  {
+   "restart": 2,
+   "up": true,
+   "key_fingerprint": "7c21085f31fd20bd",
+   "first_counter": 1,
+   "recorded": 10,
+   "replay_rejected": 10,
+   "commands_executed_again": 0,
+   "new_commands_ok": 10,
+   "pairs_repeated": 0
+  },
+  {
+   "restart": 3,
+   "up": true,
+   "key_fingerprint": "12c618cb3b09624f",
+   "first_counter": 1,
+   "recorded": 10,
+   "replay_rejected": 10,
+   "commands_executed_again": 0,
+   "new_commands_ok": 10,
+   "pairs_repeated": 0
+  },
+  {
+   "restart": 4,
+   "up": true,
+   "key_fingerprint": "3a1e6a759defad9b",
+   "first_counter": 1,
+   "recorded": 10,
+   "replay_rejected": 10,
+   "commands_executed_again": 0,
+   "new_commands_ok": 10,
+   "pairs_repeated": 0
+  },
+  {
+   "restart": 5,
+   "up": true,
+   "key_fingerprint": "8ea6ba03e08d20c3",
+   "first_counter": 1,
+   "recorded": 10,
+   "replay_rejected": 10,
+   "commands_executed_again": 0,
+   "new_commands_ok": 10,
+   "pairs_repeated": 0
+  }
+ ],
+ "B_total": {
+  "recorded": 50,
+  "rejected": 50,
+  "executed": 0,
+  "pairs": 60,
+  "pairs_repeated": 0,
+  "fingerprints": [
+   "accd3da22cb1b329",
+   "5d3313d6b8c76a41",
+   "7c21085f31fd20bd",
+   "12c618cb3b09624f",
+   "3a1e6a759defad9b",
+   "8ea6ba03e08d20c3"
+  ]
+ }
+}

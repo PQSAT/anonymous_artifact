@@ -1,0 +1,240 @@
+/*
+  PQSAT protocol, constellation phase: what happens to the session
+  key SK after the handshake. Design points that this model covers:
+
+    C6  SK never leaves the serving satellite. Three keys are derived from it:
+          K_gl  = KDF(SK | "ground-link")          for the feeder satellite
+          K_ord = KDF(SK | "order")                authenticates hand over orders
+          SK_n  = KDF(SK | "next-link" | ID_Sn)     user link key after hand over
+    C7  a key that travels between satellites is protected end to end: the
+        sender encapsulates to the long term ML-KEM key of the destination
+        satellite, wraps the key under that secret and signs the packet with
+        its ML-DSA key. A relay satellite forwards it and learns nothing.
+    C8  the hand over order carries a MAC under K_ord, the key of the user it
+        names, and the serving satellite checks it.
+    C9  the serving satellite erases SK when it hands the user over.
+
+  The handshake is replaced by one rule that gives a fresh SK to the user,
+  the serving satellite and the ground station, which is what the lemmas of
+  pqsat_handshake.spthy establish.
+
+  The hop by hop SDLS protection of the ISL stays in the flight code but is
+  NOT relied on here: in this model the adversary reads and writes every
+  ISL, so the results hold even if every ISL key leaks and every relay
+  satellite is hostile.
+
+  One hand over per session is modeled.
+
+  Run:  tamarin-prover --derivcheck-timeout=0 --prove pqsat_handover.spthy
+*/
+
+theory PQSAT_Handover
+begin
+
+builtins: signing, symmetric-encryption, asymmetric-encryption
+
+functions: kdf/1, mac/2
+
+/* ------------------------------------------------------------------ */
+/* Setup                                                               */
+/* ------------------------------------------------------------------ */
+
+// a satellite with its certified ML-DSA and ML-KEM keys (role: satellite)
+rule Enroll_SAT:
+    [ Fr(~ltkS), Fr(~ltkK) ]
+  --[ Enrolled($X), SigKey($X, ~ltkS), KemKey($X, ~ltkK) ]->
+    [ !SatSig($X, ~ltkS), !SatKem($X, ~ltkK)
+    , !SatPkSig($X, pk(~ltkS)), !SatPkKem($X, pk(~ltkK))
+    , Out(pk(~ltkS)), Out(pk(~ltkK)) ]
+
+// result of one handshake: user U, serving satellite S, ground station G
+rule Established:
+    [ Fr(~sk), !SatSig($S, ltkS) ]
+  --[ Established($U, $S, $G, ~sk) ]->
+    [ UEKey($U, ~sk), !Serving($S, $U, $G, ~sk), !GSHolds($G, $U, $S, ~sk) ]
+
+/* ------------------------------------------------------------------ */
+/* Adversary                                                           */
+/* ------------------------------------------------------------------ */
+
+rule Reveal_Sig:
+    [ !SatSig($X, ltkS) ] --[ RevSig($X) ]-> [ Out(ltkS) ]
+
+rule Reveal_Kem:
+    [ !SatKem($X, ltkK) ] --[ RevKem($X) ]-> [ Out(ltkK) ]
+
+// a compromised satellite gives up the key it holds at that moment
+rule Compromise_Serving:
+    [ !Serving($S, $U, $G, sk) ]
+  --[ CompromisedSat($S, sk), Holds($S, sk) ]->
+    [ Out(sk) ]
+
+rule Compromise_Feeder:
+    [ !FeederHolds($F, k) ] --[ CompromisedSat($F, k) ]-> [ Out(k) ]
+
+rule Compromise_Next:
+    [ !NextHolds($Sn, k) ] --[ CompromisedSat($Sn, k) ]-> [ Out(k) ]
+
+/* ------------------------------------------------------------------ */
+/* GLINK: the ground link key to the feeder satellite, end to end      */
+/* ------------------------------------------------------------------ */
+
+rule Glink_Send:
+  let
+    kgl  = kdf(<sk, 'ground-link'>)
+    c    = aenc(~ss, pkF)
+    body = senc(<'GLINK', $S, $F, kgl>, kdf(~ss))
+    sig  = sign(<'GLINK', $S, $F, c, body>, ltkS)
+  in
+    [ !Serving($S, $U, $G, sk), Fr(~ss), !SatSig($S, ltkS), !SatPkKem($F, pkF) ]
+  --[ GlinkSent($S, $F, kgl), GlinkOf(kgl, sk), SrcOut(kgl), Holds($S, sk) ]->
+    [ Out(<c, body, sig>) ]
+
+rule Glink_Accept:
+  let
+    c    = aenc(ss, pk(ltkK))
+    body = senc(<'GLINK', $S, $F, kgl>, kdf(ss))
+  in
+    [ In(<c, body, sig>), !SatKem($F, ltkK), !SatPkSig($S, pkS) ]
+  --[ Eq(verify(sig, <'GLINK', $S, $F, c, body>, pkS), true)
+    , GlinkAccepted($F, $S, kgl), SrcIn(kgl) ]->
+    [ !FeederHolds($F, kgl) ]
+
+/* ------------------------------------------------------------------ */
+/* Hand over                                                           */
+/* ------------------------------------------------------------------ */
+
+// the ground station orders the hand over of U from S to Sn
+rule GS_Order_Handover:
+    [ !GSHolds($G, $U, $S, sk) ]
+  --[ HandoverOrdered($G, $U, $S, $Sn, sk) ]->
+    [ Out(mac(<'HANDOVER', $U, $S, $Sn>, kdf(<sk, 'order'>))) ]
+
+// the serving satellite checks the order, sends SK_n end to end, erases SK
+rule Sat_Handover:
+  let
+    skn  = kdf(<sk, 'next-link', $Sn>)
+    c    = aenc(~ss, pkN)
+    body = senc(<'USERSESS', $U, $S, $Sn, skn>, kdf(~ss))
+    sig  = sign(<'USERSESS', $S, $Sn, c, body>, ltkS)
+  in
+    [ In(mac(<'HANDOVER', $U, $S, $Sn>, kdf(<sk, 'order'>)))
+    , !Serving($S, $U, $G, sk), Fr(~ss), !SatSig($S, ltkS), !SatPkKem($Sn, pkN) ]
+  --[ HandoverSent($S, $Sn, $U, skn), NextOf(skn, sk), Erased($S, sk), Holds($S, sk), SrcOut(skn) ]->
+    [ Out(<c, body, sig>) ]
+
+rule Usersess_Accept:
+  let
+    c    = aenc(ss, pk(ltkK))
+    body = senc(<'USERSESS', $U, $S, $Sn, skn>, kdf(ss))
+  in
+    [ In(<c, body, sig>), !SatKem($Sn, ltkK), !SatPkSig($S, pkS) ]
+  --[ Eq(verify(sig, <'USERSESS', $S, $Sn, c, body>, pkS), true)
+    , HandoverAccepted($Sn, $S, $U, skn), SrcIn(skn) ]->
+    [ !NextHolds($Sn, skn) ]
+
+// the user derives the same key when it sees the new satellite
+rule UE_Handover:
+    [ UEKey($U, sk) ]
+  --[ UEHandover($U, $Sn, kdf(<sk, 'next-link', $Sn>)) ]->
+    [ UEKeyNext($U, kdf(<sk, 'next-link', $Sn>)) ]
+
+restriction Equality:
+  "All x y #i. Eq(x, y) @i ==> x = y"
+
+// C9: after the hand over the serving satellite no longer holds SK
+restriction Erasure:
+  "All s k #i #j. Erased(s, k) @i & Holds(s, k) @j ==> (#j < #i) | (#j = #i)"
+
+restriction OneEnrollment:
+  "All x #i #j. Enrolled(x) @i & Enrolled(x) @j ==> #i = #j"
+
+/* ------------------------------------------------------------------ */
+/* Lemmas                                                              */
+/* ------------------------------------------------------------------ */
+
+// a key that a satellite unwraps is known to the adversary or was wrapped
+// by a satellite
+lemma types [sources]:
+  "All x #i. SrcIn(x) @i ==> (Ex #j. KU(x) @j & j < i) | (Ex #j. SrcOut(x) @j & j < i)"
+
+lemma sig_key_secret [reuse]:
+  "All X k #i #j. SigKey(X, k) @i & KU(k) @j ==> (Ex #r. RevSig(X) @r & r < j)"
+
+lemma kem_key_secret [reuse]:
+  "All X k #i #j. KemKey(X, k) @i & KU(k) @j ==> (Ex #r. RevKem(X) @r & r < j)"
+
+// D0  a ground link transfer and a hand over both complete and the user
+//     and the new satellite hold the same key
+lemma executable:
+  exists-trace
+  "Ex U S G Fd Sn sk kgl skn #a #b #g #c #d #e.
+      Established(U, S, G, sk) @a & GlinkAccepted(Fd, S, kgl) @b & GlinkOf(kgl, sk) @g
+    & HandoverOrdered(G, U, S, Sn, sk) @c & HandoverAccepted(Sn, S, U, skn) @d
+    & UEHandover(U, Sn, skn) @e
+    & not (S = Fd) & not (S = Sn) & not (Fd = Sn)
+    & not (Ex A #r. RevSig(A) @r) & not (Ex A #r. RevKem(A) @r)
+    & not (Ex A k #r. CompromisedSat(A, k) @r)"
+
+// D1  SK is revealed only by a compromise of the serving satellite while it
+//     holds SK. Nothing that the feeder, the next satellite, a relay or any
+//     long term key gives away reveals SK (closes F5 and F6).
+lemma sk_secret:
+  "All U S G sk #i #j. Established(U, S, G, sk) @i & K(sk) @j
+    ==> (Ex #r. CompromisedSat(S, sk) @r & r < j)"
+
+// D2  the ground link key is revealed only through the serving satellite,
+//     the feeder that it was sent to, or that feeder's ML-KEM key
+lemma glink_secret:
+  "All U S G sk kgl #i #g #j. Established(U, S, G, sk) @i & GlinkOf(kgl, sk) @g & K(kgl) @j
+    ==> (Ex #r. CompromisedSat(S, sk) @r)
+      | (Ex Fd #s #r. GlinkSent(S, Fd, kgl) @s & RevKem(Fd) @r)
+      | (Ex Fd #r. CompromisedSat(Fd, kgl) @r)"
+
+// D3  the key after hand over is revealed only through the old serving
+//     satellite before it erased SK, the new satellite, or its ML-KEM key
+lemma next_key_secret:
+  "All U S G sk skn #i #g #j. Established(U, S, G, sk) @i & NextOf(skn, sk) @g & K(skn) @j
+    ==> (Ex #r. CompromisedSat(S, sk) @r)
+      | (Ex Sn #s #r. HandoverSent(S, Sn, U, skn) @s & RevKem(Sn) @r)
+      | (Ex Sn #r. CompromisedSat(Sn, skn) @r)"
+
+// D4  the feeder accepts a ground link key only from the satellite that
+//     sent it, unless that satellite's ML-DSA key leaked
+lemma glink_authentic:
+  "All Fd S kgl #i. GlinkAccepted(Fd, S, kgl) @i
+    ==> (Ex #j. GlinkSent(S, Fd, kgl) @j & j < i)
+      | (Ex #r. RevSig(S) @r & r < i)"
+
+// D5  a satellite takes over a user only with the key that the serving
+//     satellite sent, and the serving satellite sent it only on an order of
+//     the ground station for that user and that target. The order cannot be
+//     forged with the key of another user's session (closes F7).
+lemma handover_authentic:
+  "All Sn S U skn #i. HandoverAccepted(Sn, S, U, skn) @i
+    ==> (Ex G sk #j #k. HandoverSent(S, Sn, U, skn) @j & j < i
+           & HandoverOrdered(G, U, S, Sn, sk) @k & k < j & NextOf(skn, sk) @j)
+      | (Ex #r. RevSig(S) @r & r < i)
+      | (Ex sk #r. CompromisedSat(S, sk) @r & r < i)"
+
+/* ------------------------------------------------------------------ */
+/* Limits that remain, each shown by a trace                           */
+/* ------------------------------------------------------------------ */
+
+// R1  the serving satellite holds SK while it serves the user
+lemma R1_serving_satellite_holds_sk:
+  exists-trace
+  "Ex U S G sk #i #j. Established(U, S, G, sk) @i & K(sk) @j
+    & not (Ex A #r. RevSig(A) @r) & not (Ex A #r. RevKem(A) @r)"
+
+// R2  a satellite whose ML-DSA key leaked can make a neighbour take over a
+//     user with a key the adversary chose: the neighbour cannot check the
+//     order of the ground station itself
+lemma R2_leaked_satellite_signing_key:
+  exists-trace
+  "Ex Sn S U skn #i #j. HandoverAccepted(Sn, S, U, skn) @i & K(skn) @j
+    & not (Ex A k #r. CompromisedSat(A, k) @r)
+    & not (Ex A #r. RevKem(A) @r)
+    & not (Ex G2 U2 S2 Sx sk2 #r. HandoverOrdered(G2, U2, S2, Sx, sk2) @r)"
+
+end

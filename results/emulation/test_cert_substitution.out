@@ -1,0 +1,35 @@
+
+=== A: satellite satsim_sf7_nopin, terminals without the policy ===
+[GS] COP-1 ready, V(S)=0
+[USER1] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (249 ms)
+PASS satellite up, COP-1 and clock
+   attempt 1: reached MSG6, stopped: wrap from satellite rejected  (150 s)
+      adversary holds the session key of the user: False; satellite completed: False; satellite rejected the certificate at MSG3: False; user holds the forged certificate: True
+   attempt 2: reached done  (151 s)
+      adversary holds the session key of the user: True; satellite completed: True; satellite rejected the certificate at MSG3: False; user holds the forged certificate: True
+PASS A. attempt 1 does not complete  [MSG6]
+PASS A. attempt 2 completes with the adversary in the place of the ground station
+[GS] closed
+[USER1] closed
+
+=== B: satellite satsim_sf7_pin, terminals with the policy ===
+[GS] COP-1 ready, V(S)=0
+[USER1] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (250 ms)
+PASS satellite up, COP-1 and clock
+   attempt 1: reached MSG4, stopped: no 0x04 from the satellite within 150 s  (245 s)
+      adversary holds the session key of the user: False; satellite completed: False; satellite rejected the certificate at MSG3: True; user holds the forged certificate: False
+   attempt 2: reached MSG4, stopped: no 0x04 from the satellite within 150 s  (245 s)
+      adversary holds the session key of the user: False; satellite completed: False; satellite rejected the certificate at MSG3: True; user holds the forged certificate: False
+PASS B. attempt 1 rejected by the satellite at MSG3  [MSG4]
+PASS B. attempt 2 rejected by the satellite at MSG3  [MSG4]
+PASS B. the satellite completed no handshake with the adversary
+PASS B. the user still holds the genuine certificate
+PASS B. honest handshake by reference to the installed certificate completes afterwards  [108.692 s, 34546 octets]
+PASS B. the satellite asked for no certificate and rejected none in the honest handshake
+[GS] closed
+[USER1] closed
+
+10/10 checks passed
+exit 0

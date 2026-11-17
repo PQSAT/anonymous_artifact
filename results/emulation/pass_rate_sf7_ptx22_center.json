@@ -1,0 +1,84 @@
+{
+ "sf": 7,
+ "ptx_dbm": 22.0,
+ "bitrate_bps": 3906,
+ "air_255_ms": 551,
+ "runs": [
+  {
+   "run": 1,
+   "start_s": 450,
+   "end_s": 555.2,
+   "seconds": 105.174,
+   "ok": true,
+   "inside": true,
+   "octets": 34546,
+   "uplink": 57,
+   "model": {
+    "sent": 27,
+    "sent_removed": 0,
+    "received": 81,
+    "received_removed": 0,
+    "outside_window": 0
+   },
+   "error": null
+  },
+  {
+   "run": 2,
+   "start_s": 450,
+   "end_s": 555.1,
+   "seconds": 105.132,
+   "ok": true,
+   "inside": true,
+   "octets": 34546,
+   "uplink": 57,
+   "model": {
+    "sent": 27,
+    "sent_removed": 0,
+    "received": 81,
+    "received_removed": 0,
+    "outside_window": 0
+   },
+   "error": null
+  },
+  {
+   "run": 3,
+   "start_s": 450,
+   "end_s": 555.1,
+   "seconds": 105.086,
+   "ok": true,
+   "inside": true,
+   "octets": 34546,
+   "uplink": 57,
+   "model": {
+    "sent": 27,
+    "sent_removed": 0,
+    "received": 81,
+    "received_removed": 0,
+    "outside_window": 0
+   },
+   "error": null
+  }
+ ],
+ "pass": {
+  "satellite": "SAT-7",
+  "max_elevation_deg": 88.6,
+  "pass_seconds": 1005.0,
+  "profile": "SF9",
+  "range_km_at_rise": 3492.1,
+  "range_km_at_peak": 1414.1,
+  "margin_db_at_rise": -1.08,
+  "margin_db_at_peak": 6.77,
+  "doppler_hz_at_rise": 16658,
+  "doppler_hz_at_peak": -275,
+  "usable_from_s": 140.0,
+  "usable_to_s": 860.0,
+  "usable_seconds": 720.0,
+  "start_offset_s": 0.0
+ },
+ "clean": {
+  "seconds": 105.075,
+  "octets": 34546,
+  "ok": true
+ },
+ "completed_inside": 3
+}

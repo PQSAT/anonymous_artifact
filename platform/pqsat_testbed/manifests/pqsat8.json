@@ -1,0 +1,105 @@
+{
+ "name": "PQSAT-8",
+ "description": "Research constellation of the PQSAT testbed: one near polar plane of eight satellites at 1 414 km (Globalstar altitude) with an inter satellite ring. At that altitude consecutive satellites overlap at the user by up to 150 s on high passes and not at all on low ones, so the pre arranged handover (18.7 s) is measured against real pass geometry and a new handshake (371 s) never fits.",
+ "walker": {
+  "satellites": 8,
+  "planes": 1,
+  "phasing": 0
+ },
+ "altitude_km": 1414,
+ "inclination_deg": 87.9,
+ "raan0_deg": -100,
+ "epoch": "2026-12-12T00:00:00Z",
+ "min_elevation_deg": 10,
+ "gsl_policy": "longest_remaining",
+ "isl": {
+  "topology": "ring",
+  "carrier": "RF, Iridium type (wired stand in on the bench)"
+ },
+ "radio": {
+  "profile": "SF9",
+  "bandwidth_khz": 125,
+  "coding_rate": "4/7",
+  "frequency_mhz": 868,
+  "adaptive_sf": false,
+  "note": "The bench radios run SF9 at 125 kHz with coding rate 4/7. The model uses the same profile so that modelled margins and measured air times belong to one radio setting."
+ },
+ "satellites": [
+  {
+   "name": "SAT-1",
+   "scid": 257,
+   "plane": 0,
+   "slot": 0,
+   "uplink_mhz": 868.1,
+   "downlink_mhz": 869.525,
+   "runs_on": "emulator"
+  },
+  {
+   "name": "SAT-2",
+   "scid": 258,
+   "plane": 0,
+   "slot": 1,
+   "uplink_mhz": 868.3,
+   "downlink_mhz": 868.5,
+   "runs_on": "emulator"
+  },
+  {
+   "name": "SAT-3",
+   "scid": 259,
+   "plane": 0,
+   "slot": 2,
+   "uplink_mhz": 868.7,
+   "downlink_mhz": 868.9,
+   "runs_on": "emulator"
+  },
+  {
+   "name": "SAT-4",
+   "scid": 260,
+   "plane": 0,
+   "slot": 3,
+   "uplink_mhz": 869.1,
+   "downlink_mhz": 869.3,
+   "runs_on": "emulator"
+  },
+  {
+   "name": "SAT-5",
+   "scid": 261,
+   "plane": 0,
+   "slot": 4,
+   "uplink_mhz": 868.1,
+   "downlink_mhz": 869.525,
+   "runs_on": "emulator"
+  },
+  {
+   "name": "SAT-6",
+   "scid": 262,
+   "plane": 0,
+   "slot": 5,
+   "uplink_mhz": 868.3,
+   "downlink_mhz": 868.5,
+   "runs_on": "emulator"
+  },
+  {
+   "name": "SAT-7",
+   "scid": 263,
+   "plane": 0,
+   "slot": 6,
+   "uplink_mhz": 868.7,
+   "downlink_mhz": 868.9,
+   "runs_on": "emulator"
+  },
+  {
+   "name": "SAT-8",
+   "scid": 264,
+   "plane": 0,
+   "slot": 7,
+   "uplink_mhz": 869.1,
+   "downlink_mhz": 869.3,
+   "runs_on": "emulator"
+  }
+ ],
+ "hardware_in_the_loop": {
+  "Versal A": "serving",
+  "Versal B": "next"
+ }
+}

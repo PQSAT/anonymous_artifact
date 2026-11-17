@@ -1,0 +1,50 @@
+[GS] COP-1 ready, V(S)=0
+[USER1] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (595 ms)
+   MSG1   up     5692 B   24 segments  0 retx    48.2 s
+   MSG2   down  11402 B   60 frames    0 lost  0 NAK 0 repaired    96.9 s
+   MSG3   up     6678 B   29 segments  1 retx    63.6 s
+   MSG4   down  10186 B   54 frames    0 lost  0 NAK 0 repaired    86.9 s
+   MSG5   up       34 B    3 segments  2 retx    10.1 s
+   MSG6   down    114 B    1 frames    0 lost  0 NAK 0 repaired     1.1 s
+   MSG7   up      194 B    1 segments  0 retx     1.8 s
+   MSG7f  down    146 B    1 frames    0 lost  0 NAK 0 repaired     1.3 s
+   MSG8   up       34 B    1 segments  0 retx     0.8 s
+[USER1] SDLS started: TC VC1 protected on send, TM VC2 verified on receive
+   MSG8   down     66 B    1 frames    0 lost  0 NAK 0 repaired     0.8 s
+[GS] SDLS started: TC VC0 protected on send, TM VC4 verified on receive
+   total 34546 B, 58 uplink segments (3 retx), 117 downlink frames (0 lost), 311.5 s, keys agree: True
+PASS first handshake completes
+
+--- terminal programs restarted, no keys ---
+[GS] COP-1 ready, V(S)=0
+[USER1] COP-1 ready, V(S)=0
+PASS COP-1 initialises
+[GS] PING tc_seq 0: DELIVERED (ACK lost)  (3546 ms)
+   clear PING -> DELIVERED (ACK lost)
+PASS failure reproduced: clear command is not acknowledged
+[GS] PING tc_seq 1: DELIVERED (ACK lost)  (3541 ms)
+[GS] SDLS started: TC VC0 protected on send, TM VC4 verified on receive
+[GS] SA_STOP tc_seq 2: OK  (5212 ms)
+[GS] PING tc_seq 3: OK  (581 ms)
+security associations stopped after attempt 1: the link is in clear
+PASS sa_recover brings the link back to clear
+[GS] PING tc_seq 4: OK  (566 ms)
+PASS clear PING is acknowledged
+   MSG1   up     5692 B   24 segments  0 retx    48.2 s
+   MSG2   down  11402 B   60 frames    0 lost  0 NAK 0 repaired    97.0 s
+   MSG3   up     6678 B   29 segments  1 retx    63.7 s
+   MSG4   down  10186 B   54 frames    0 lost  0 NAK 0 repaired    86.9 s
+   MSG5   up       34 B    3 segments  2 retx    10.2 s
+   MSG6   down    114 B    1 frames    0 lost  0 NAK 0 repaired     1.1 s
+   MSG7   up      194 B    1 segments  0 retx     1.8 s
+   MSG7f  down    146 B    1 frames    0 lost  0 NAK 0 repaired     1.3 s
+   MSG8   up       34 B    1 segments  0 retx     0.8 s
+[USER1] SDLS started: TC VC1 protected on send, TM VC2 verified on receive
+   MSG8   down     66 B    1 frames    0 lost  0 NAK 0 repaired     0.8 s
+[GS] SDLS rekeyed: TC VC0 protected on send, TM VC4 verified on receive
+   total 34546 B, 58 uplink segments (3 retx), 117 downlink frames (0 lost), 311.6 s, keys agree: True
+PASS second handshake completes after recovery
+
+6/6 checks passed
+rc=0

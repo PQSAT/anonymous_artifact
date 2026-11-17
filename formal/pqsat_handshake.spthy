@@ -1,0 +1,543 @@
+/*
+  PQSAT protocol: three party post quantum mutual authentication and
+  key exchange. Design points of the protocol that this model covers:
+
+    C1  SK is derived from the three ephemeral session secrets AND the three
+        authentication secrets:
+          SK = KDF(k_su | k_gs | k_gu | ss_us | ss_sg | ss_gu | nonces | IDs | Pi3)
+    C2  the wraps are keyed from one session secret and one authentication
+        secret, and each wrap carries one of each:
+          W_sg = KDF(k_gs | ss_sg)        W_gu = KDF(k_gu | ss_gu)
+          C_su->g = wrap(W_sg, k_su | ss_us)        MSG6
+          C_gs->u = wrap(W_gu, k_gs | ss_sg)        MSG7, MSG7f
+          C_gu->s = wrap(W_sg, k_gu | ss_gu)        MSG7
+    C3  tag_u covers the authentication secrets:
+          tag_u = h(k_su | k_gu | ss_us | ss_gu | nonces | "UE-fin")
+    C4  the satellite confirms the key:
+          tag_s = h(SK | nonces | "SAT-fin")   in MSG7f and with the forwarded MSG8
+    C5  the certificate carries the role of its subject and every node checks it
+
+  Modeling choices
+    ML-DSA            built in signing: sign/2, verify/3, pk/1
+    ML-KEM            Encaps is aenc(k, pk) with k fresh, Decaps is by pattern
+    KDF, HMAC, SHA3   kdf/1, mac/2, h/1 (free function symbols)
+    AES-256-GCM wrap  senc(<label, secrets>, key)
+    hybrid signature  the pair sign(h(Pi), ltk), mac(kdf(ss), h(Pi)) and BOTH
+                      halves must verify
+    certificates      the trusted authority is honest and binds each identity
+                      to its two public keys and to its role, modeled as an
+                      authentic key lookup by role; revocation is outside
+                      this model
+    timestamps        fresh values; the freshness window is below the model
+    replay cache      not modeled and not needed: no lemma depends on it
+    forwarding        a node that forwards fields it received in clear adds
+                      nothing to what the adversary knows, so only the new
+                      terms of each message are put on the network
+
+  Adversary: Dolev Yao on every link, plus the reveal rules below (long
+  term ML-DSA key, long term ML-KEM key, ephemeral ML-KEM key, and each of
+  the three session secrets k_su, k_gs, k_gu on its own).
+
+  Run:  tamarin-prover --derivcheck-timeout=0 --prove pqsat_handshake.spthy
+*/
+
+theory PQSAT_Handshake
+begin
+
+builtins: signing, hashing, symmetric-encryption, asymmetric-encryption
+
+functions: kdf/1, mac/2
+
+/* Proof search order. A secret that the ground station decapsulates may be
+   any ML-KEM secret of the protocol, so the search can chase session
+   secrets from one handshake into the next without end. The MAC half of
+   the signature that carries such a secret needs the secret first, which
+   closes each of these branches, so the MAC goals are solved first. */
+tactic: macfirst
+presort: s
+prio:
+  regex "!KU\( ~ltk"
+prio:
+  regex "!KU\( ~esk"
+prio:
+  regex "!KU\( kdf\("
+prio:
+  regex "!KU\( mac\("
+prio:
+  regex "!KU\( sign\("
+
+/* ------------------------------------------------------------------ */
+/* Enrollment                                                          */
+/* ------------------------------------------------------------------ */
+
+/* Proof search order for the lemmas that rest on ML-KEM alone. There the
+   ML-DSA keys are known to the adversary, so asking where a signature came
+   from decides nothing and is left for last. */
+tactic: kemmode
+presort: s
+prio:
+  regex "!KU\( ~ltk"
+prio:
+  regex "!KU\( kdf\("
+prio:
+  regex "!KU\( mac\("
+deprio:
+  regex "!KU\( sign\("
+
+// Every party gets an ML-DSA key pair and an ML-KEM key pair. The trusted
+// authority binds both public keys to the identity AND to its role (user,
+// satellite or ground station): the protocol requires a role field in the
+// certificate, and every node checks the role of the certificate it uses.
+rule Enroll_UE:
+    [ Fr(~ltkS), Fr(~ltkK) ]
+  --[ Enrolled($X), SigKey($X, ~ltkS), KemKey($X, ~ltkK) ]->
+    [ !LtkSigU($X, ~ltkS), !LtkKemU($X, ~ltkK)
+    , !PkSigU($X, pk(~ltkS)), !PkKemU($X, pk(~ltkK))
+    , Out(pk(~ltkS)), Out(pk(~ltkK)) ]
+
+rule Enroll_SAT:
+    [ Fr(~ltkS), Fr(~ltkK) ]
+  --[ Enrolled($X), SigKey($X, ~ltkS), KemKey($X, ~ltkK) ]->
+    [ !LtkSigS($X, ~ltkS), !LtkKemS($X, ~ltkK)
+    , !PkSigS($X, pk(~ltkS)), !PkKemS($X, pk(~ltkK))
+    , Out(pk(~ltkS)), Out(pk(~ltkK)) ]
+
+rule Enroll_GS:
+    [ Fr(~ltkS), Fr(~ltkK) ]
+  --[ Enrolled($X), SigKey($X, ~ltkS), KemKey($X, ~ltkK) ]->
+    [ !LtkSigG($X, ~ltkS), !LtkKemG($X, ~ltkK)
+    , !PkSigG($X, pk(~ltkS)), !PkKemG($X, pk(~ltkK))
+    , Out(pk(~ltkS)), Out(pk(~ltkK)) ]
+
+/* ------------------------------------------------------------------ */
+/* Adversary capabilities                                              */
+/* ------------------------------------------------------------------ */
+
+rule Reveal_Sig_UE:                    // long term ML-DSA signing key
+    [ !LtkSigU($X, ltkS) ] --[ RevSig($X) ]-> [ Out(ltkS) ]
+
+rule Reveal_Kem_UE:                    // long term ML-KEM decapsulation key
+    [ !LtkKemU($X, ltkK) ] --[ RevKem($X) ]-> [ Out(ltkK) ]
+
+rule Reveal_Sig_SAT:                    // long term ML-DSA signing key
+    [ !LtkSigS($X, ltkS) ] --[ RevSig($X) ]-> [ Out(ltkS) ]
+
+rule Reveal_Kem_SAT:                    // long term ML-KEM decapsulation key
+    [ !LtkKemS($X, ltkK) ] --[ RevKem($X) ]-> [ Out(ltkK) ]
+
+rule Reveal_Sig_GS:                    // long term ML-DSA signing key
+    [ !LtkSigG($X, ltkS) ] --[ RevSig($X) ]-> [ Out(ltkS) ]
+
+rule Reveal_Kem_GS:                    // long term ML-KEM decapsulation key
+    [ !LtkKemG($X, ltkK) ] --[ RevKem($X) ]-> [ Out(ltkK) ]
+
+rule Reveal_Eph:                       // ephemeral ML-KEM secret key of one handshake
+    [ !Eph(esk) ] --[ RevEph(esk) ]-> [ Out(esk) ]
+
+rule Reveal_Ksu:                       // one session secret, from the node that made it
+    [ !SecKsu(k) ] --[ RevKsu(k) ]-> [ Out(k) ]
+
+rule Reveal_Kgs:
+    [ !SecKgs(k) ] --[ RevKgs(k) ]-> [ Out(k) ]
+
+rule Reveal_Kgu:
+    [ !SecKgu(k) ] --[ RevKgu(k) ]-> [ Out(k) ]
+
+/* ------------------------------------------------------------------ */
+/* MSG1: user to satellite                                             */
+/* ------------------------------------------------------------------ */
+
+rule UE_1:
+  let
+    cus  = aenc(~ssus, pkKS)
+    epkU = pk(~eskU)
+    Pi1  = <$U, $S, $G, h(cus), h(epkU), ~muU, ~T1>
+    sigU = sign(h(Pi1), ltkSU)
+    tauU = mac(kdf(~ssus), h(Pi1))
+  in
+    [ Fr(~ssus), Fr(~eskU), Fr(~muU), Fr(~T1)
+    , !LtkSigU($U, ltkSU), !PkKemS($S, pkKS) ]
+  --[ UE_Start($U, $S, $G, ~muU), SrcOut(~ssus), AuthSecret($U, $S, $G, ~ssus) ]->
+    [ UE_St1($U, $S, $G, ~eskU, ~ssus, ~muU, Pi1)
+    , !Eph(~eskU)
+    , Out(cus), Out(epkU), Out(~muU), Out(~T1), Out(sigU), Out(tauU) ]
+
+/* ------------------------------------------------------------------ */
+/* MSG2: satellite to ground station                                   */
+/* ------------------------------------------------------------------ */
+
+rule SAT_2:
+  let
+    cus   = aenc(ssus, pk(ltkKS))
+    Pi1   = <$U, $S, $G, h(cus), h(epkU), muU, T1>
+    esu   = aenc(~ksu, epkU)
+    epkS  = pk(~eskS)
+    csg   = aenc(~sssg, pkKG)
+    Pi2   = <Pi1, $S, h(csg), h(epkS), h(esu), ~muS, ~T2>
+    sigS  = sign(h(Pi2), ltkSS)
+    tauS  = mac(kdf(~sssg), h(Pi2))
+  in
+    [ In(<$U, cus, epkU, muU, T1, sigU, tauU>)
+    , Fr(~ksu), Fr(~eskS), Fr(~sssg), Fr(~muS), Fr(~T2)
+    , !PkSigU($U, pkSU), !LtkKemS($S, ltkKS), !LtkSigS($S, ltkSS)
+    , !PkKemG($G, pkKG) ]
+  --[ Eq(verify(sigU, h(Pi1), pkSU), true)
+    , Eq(tauU, mac(kdf(ssus), h(Pi1)))
+    , SrcIn(ssus), SrcOut(~sssg), SrcOut(~ksu), AuthSecret($U, $S, $G, ~sssg)
+    , SAT_AcceptMsg1($S, $U, $G, muU, epkU) ]->
+    [ SAT_St2($S, $U, $G, ~ksu, ~eskS, ssus, ~sssg, muU, ~muS, Pi2)
+    , !Eph(~eskS), !SecKsu(~ksu)
+    , Out(csg), Out(epkS), Out(esu), Out(~muS), Out(~T2), Out(sigS), Out(tauS) ]
+
+/* ------------------------------------------------------------------ */
+/* MSG3: ground station to satellite                                   */
+/* ------------------------------------------------------------------ */
+
+rule GS_3:
+  let
+    csg   = aenc(sssg, pk(ltkKG))
+    Pi1   = <$U, $S, $G, hcus, h(epkU), muU, T1>
+    Pi2   = <Pi1, $S, h(csg), h(epkS), h(esu), muS, T2>
+    egs   = aenc(~kgs, epkS)
+    egu   = aenc(~kgu, epkU)
+    cgu   = aenc(~ssgu, pkKU)
+    Pi3   = <Pi2, $G, h(cgu), h(egs), h(egu), ~muG, ~T3>
+    sigG  = sign(h(Pi3), ltkSG)
+    tauG  = mac(kdf(~ssgu), h(Pi3))
+  in
+    [ In(<$U, hcus, epkU, muU, T1, sigU
+        , $S, csg, epkS, esu, muS, T2, sigS, tauS>)
+    , Fr(~kgs), Fr(~kgu), Fr(~ssgu), Fr(~muG), Fr(~T3)
+    , !PkSigU($U, pkSU), !PkKemU($U, pkKU), !PkSigS($S, pkSS)
+    , !LtkKemG($G, ltkKG), !LtkSigG($G, ltkSG) ]
+  --[ Eq(verify(sigU, h(Pi1), pkSU), true)       // ML-DSA half only: ss_us never reaches the ground
+    , Eq(verify(sigS, h(Pi2), pkSS), true)
+    , Eq(tauS, mac(kdf(sssg), h(Pi2)))
+    , SrcIn(sssg), SrcOut(~kgs), SrcOut(~kgu), SrcOut(~ssgu)
+    , GSKeys($G, $U, $S, ~kgs, ~kgu), AuthSecret($U, $S, $G, ~ssgu)
+    , GS_AcceptMsg2($G, $U, $S, muU, muS) ]->
+    [ GS_St3($G, $U, $S, ~kgs, ~kgu, ~ssgu, sssg, muU, muS, ~muG, Pi3)
+    , !SecKgs(~kgs), !SecKgu(~kgu)
+    , Out(cgu), Out(egs), Out(egu), Out(~muG), Out(~T3), Out(sigG), Out(tauG) ]
+
+/* ------------------------------------------------------------------ */
+/* MSG4: satellite to user                                             */
+/* ------------------------------------------------------------------ */
+
+rule SAT_4:
+  let
+    egs   = aenc(kgs, pk(eskS))
+    Pi3   = <Pi2, $G, h(cgu), h(egs), h(egu), muG, T3>
+    Wsg   = kdf(<kgs, sssg, 'wrap-sg'>)
+    Csug  = senc(<'wrap-su-g', ksu, ssus>, Wsg)
+  in
+    [ In(<cgu, egs, egu, muG, T3, sigG, tauG>)
+    , SAT_St2($S, $U, $G, ksu, eskS, ssus, sssg, muU, muS, Pi2)
+    , !PkSigG($G, pkSG) ]
+  --[ Eq(verify(sigG, h(Pi3), pkSG), true)       // KEM half deferred to MSG7
+    , SAT_AcceptMsg3($S, $U, $G, muU, muS, muG) ]->
+    [ SAT_St4($S, $U, $G, ksu, kgs, ssus, sssg, muU, muS, muG, Pi3, Csug, tauG) ]
+
+/* ------------------------------------------------------------------ */
+/* MSG5: user to satellite                                             */
+/* ------------------------------------------------------------------ */
+
+rule UE_5:
+  let
+    esu   = aenc(ksu, pk(eskU))
+    egu   = aenc(kgu, pk(eskU))
+    cgu   = aenc(ssgu, pk(ltkKU))
+    Pi2   = <Pi1, $S, hcsg, hepkS, h(esu), muS, T2>
+    Pi3   = <Pi2, $G, h(cgu), hegs, h(egu), muG, T3>
+    tagU  = h(<ksu, kgu, ssus, ssgu, muU, muS, muG, 'UE-fin'>)
+  in
+    [ In(<hcsg, hepkS, esu, muS, T2, sigS, tauS
+        , cgu, hegs, egu, muG, T3, sigG, tauG>)
+    , UE_St1($U, $S, $G, eskU, ssus, muU, Pi1)
+    , !PkSigS($S, pkSS), !PkSigG($G, pkSG), !LtkKemU($U, ltkKU) ]
+  --[ Eq(verify(sigS, h(Pi2), pkSS), true)       // KEM half deferred to MSG7f
+    , Eq(verify(sigG, h(Pi3), pkSG), true)
+    , Eq(tauG, mac(kdf(ssgu), h(Pi3)))
+    , UE_AcceptMsg4($U, $S, $G, muU, muS, muG) ]->
+    [ UE_St5($U, $S, $G, ksu, kgu, ssus, ssgu, muU, muS, muG, Pi2, Pi3, tauS)
+    , Out(tagU) ]
+
+/* ------------------------------------------------------------------ */
+/* MSG6: satellite to ground station                                   */
+/* ------------------------------------------------------------------ */
+
+rule SAT_6:
+    [ In(tagU)
+    , SAT_St4($S, $U, $G, ksu, kgs, ssus, sssg, muU, muS, muG, Pi3, Csug, tauG) ]
+  -->
+    [ SAT_St6($S, $U, $G, ksu, kgs, ssus, sssg, muU, muS, muG, Pi3, tauG)
+    , Out(Csug) ]
+
+/* ------------------------------------------------------------------ */
+/* MSG7: ground station to satellite                                   */
+/* ------------------------------------------------------------------ */
+
+rule GS_7:
+  let
+    Wsg  = kdf(<kgs, sssg, 'wrap-sg'>)
+    Wgu  = kdf(<kgu, ssgu, 'wrap-gu'>)
+    Csug = senc(<'wrap-su-g', ksu, ssus>, Wsg)
+    tagU = h(<ksu, kgu, ssus, ssgu, muU, muS, muG, 'UE-fin'>)
+    SK   = kdf(<ksu, kgs, kgu, ssus, sssg, ssgu, muU, muS, muG, $U, $S, $G, Pi3, 'SK'>)
+    Cgsu = senc(<'wrap-gs-u', kgs, sssg>, Wgu)
+    Cgus = senc(<'wrap-gu-s', kgu, ssgu>, Wsg)
+    tagG = h(<SK, muU, muS, muG, 'GS-fin'>)
+  in
+    [ In(<Csug, tagU>)
+    , GS_St3($G, $U, $S, kgs, kgu, ssgu, sssg, muU, muS, muG, Pi3) ]
+  --[ SKey('GS', $U, $S, $G, SK)
+    , Running('GS', $U, $S, $G, SK) ]->
+    [ GS_St7($G, $U, $S, SK, muU, muS, muG)
+    , Out(Cgsu), Out(Cgus), Out(tagG) ]
+
+/* ------------------------------------------------------------------ */
+/* MSG7f: satellite to user                                            */
+/* ------------------------------------------------------------------ */
+
+rule SAT_7:
+  let
+    Wsg  = kdf(<kgs, sssg, 'wrap-sg'>)
+    Cgus = senc(<'wrap-gu-s', kgu, ssgu>, Wsg)
+    SK   = kdf(<ksu, kgs, kgu, ssus, sssg, ssgu, muU, muS, muG, $U, $S, $G, Pi3, 'SK'>)
+    tagG = h(<SK, muU, muS, muG, 'GS-fin'>)
+    tagS = h(<SK, muU, muS, muG, 'SAT-fin'>)
+  in
+    [ In(<Cgus, tagG>)
+    , SAT_St6($S, $U, $G, ksu, kgs, ssus, sssg, muU, muS, muG, Pi3, tauG) ]
+  --[ Eq(tauG, mac(kdf(ssgu), h(Pi3)))           // deferred KEM half of the ground signature
+    , SKey('SAT', $U, $S, $G, SK)
+    , Running('SAT', $U, $S, $G, SK)
+    , Commit('SAT', 'GS', $U, $S, $G, SK) ]->
+    [ SAT_St7($S, $U, $G, SK, muU, muS, muG)
+    , Out(tagS) ]
+
+/* ------------------------------------------------------------------ */
+/* MSG8: user to satellite, forwarded to the ground station            */
+/* ------------------------------------------------------------------ */
+
+rule UE_8:
+  let
+    Wgu   = kdf(<kgu, ssgu, 'wrap-gu'>)
+    Cgsu  = senc(<'wrap-gs-u', kgs, sssg>, Wgu)
+    SK    = kdf(<ksu, kgs, kgu, ssus, sssg, ssgu, muU, muS, muG, $U, $S, $G, Pi3, 'SK'>)
+    tagG  = h(<SK, muU, muS, muG, 'GS-fin'>)
+    tagS  = h(<SK, muU, muS, muG, 'SAT-fin'>)
+    tagU2 = h(<SK, muU, muS, muG, 'UE-fin-final'>)
+  in
+    [ In(<Cgsu, tagG, tagS>)
+    , UE_St5($U, $S, $G, ksu, kgu, ssus, ssgu, muU, muS, muG, Pi2, Pi3, tauS) ]
+  --[ Eq(tauS, mac(kdf(sssg), h(Pi2)))           // deferred KEM half of the satellite signature
+    , SKey('UE', $U, $S, $G, SK)
+    , Running('UE', $U, $S, $G, SK)
+    , Commit('UE', 'SAT', $U, $S, $G, SK)
+    , Commit('UE', 'GS', $U, $S, $G, SK) ]->
+    [ Out(tagU2) ]
+
+rule SAT_8:
+  let tagU2 = h(<SK, muU, muS, muG, 'UE-fin-final'>) in
+    [ In(tagU2), SAT_St7($S, $U, $G, SK, muU, muS, muG) ]
+  --[ Commit('SAT', 'UE', $U, $S, $G, SK)
+    , Done('SAT', $U, $S, $G, SK) ]->
+    [ ]
+
+// the satellite forwards tag_u' together with its own tag_s
+rule GS_8:
+  let tagU2 = h(<SK, muU, muS, muG, 'UE-fin-final'>)
+      tagS  = h(<SK, muU, muS, muG, 'SAT-fin'>)
+  in
+    [ In(<tagU2, tagS>), GS_St7($G, $U, $S, SK, muU, muS, muG) ]
+  --[ Commit('GS', 'UE', $U, $S, $G, SK)
+    , Commit('GS', 'SAT', $U, $S, $G, SK)
+    , Done('GS', $U, $S, $G, SK) ]->
+    [ ]
+
+/* ------------------------------------------------------------------ */
+/* Restrictions                                                        */
+/* ------------------------------------------------------------------ */
+
+restriction Equality:
+  "All x y #i. Eq(x, y) @i ==> x = y"
+
+restriction OneEnrollment:
+  "All x #i #j. Enrolled(x) @i & Enrolled(x) @j ==> #i = #j"
+
+/* ------------------------------------------------------------------ */
+/* Lemmas                                                              */
+/* ------------------------------------------------------------------ */
+
+// an authentication secret that a node decapsulates and later wraps for
+// another node is either known to the adversary or was encapsulated by an
+// honest node (any ML-KEM ciphertext of the protocol may be fed to it)
+lemma types [sources]:
+  "All x #i. SrcIn(x) @i ==> (Ex #j. KU(x) @j & j < i) | (Ex #j. SrcOut(x) @j & j < i)"
+
+// H0  key hygiene: a long term key leaks only through its reveal rule
+lemma sig_key_secret [reuse]:
+  "All X k #i #j. SigKey(X, k) @i & KU(k) @j ==> (Ex #r. RevSig(X) @r & r < j)"
+
+lemma kem_key_secret [reuse]:
+  "All X k #i #j. KemKey(X, k) @i & KU(k) @j ==> (Ex #r. RevKem(X) @r & r < j)"
+
+// H1  the two session secrets the ground station makes stay secret unless
+//     a signing key of the user or the satellite leaked before it made them,
+//     or an ephemeral key or one of the two secrets itself leaks
+lemma gs_secret_kgs [reuse, heuristic={macfirst}]:
+  "All G U S kgs kgu #i #j.
+      GSKeys(G, U, S, kgs, kgu) @i & KU(kgs) @j
+    ==> (Ex #r. RevSig(U) @r & r < i) | (Ex #r. RevSig(S) @r & r < i)
+      | (Ex e #r. RevEph(e) @r)
+      | (Ex #r. RevKgs(kgs) @r) | (Ex #r. RevKgu(kgu) @r)"
+
+lemma gs_secret_kgu [reuse, heuristic={macfirst}]:
+  "All G U S kgs kgu #i #j.
+      GSKeys(G, U, S, kgs, kgu) @i & KU(kgu) @j
+    ==> (Ex #r. RevSig(U) @r & r < i) | (Ex #r. RevSig(S) @r & r < i)
+      | (Ex e #r. RevEph(e) @r)
+      | (Ex #r. RevKgs(kgs) @r) | (Ex #r. RevKgu(kgu) @r)"
+
+// H2  an authentication secret stays secret as long as the long term
+//     ML-KEM keys of the three parties of its handshake do not leak,
+//     whatever else leaks (every ML-DSA key, every ephemeral key, every
+//     session secret)
+lemma auth_secret [reuse, use_induction, heuristic={kemmode}, hide_lemma=gs_secret_kgs, hide_lemma=gs_secret_kgu]:
+  "All U S G x #i #j. AuthSecret(U, S, G, x) @i & KU(x) @j
+    ==> (Ex #r. RevKem(U) @r) | (Ex #r. RevKem(S) @r) | (Ex #r. RevKem(G) @r)"
+
+// L0  an honest run ends with the same key at all three parties
+lemma executable:
+  exists-trace
+  "Ex U S G sk #i #j #k #l #m.
+      SKey('UE', U, S, G, sk) @i & SKey('SAT', U, S, G, sk) @j & SKey('GS', U, S, G, sk) @k
+    & Done('SAT', U, S, G, sk) @l & Done('GS', U, S, G, sk) @m
+    & not (Ex X #r. RevSig(X) @r) & not (Ex X #r. RevKem(X) @r)
+    & not (Ex e #r. RevEph(e) @r) & not (Ex e #r. RevKsu(e) @r)
+    & not (Ex e #r. RevKgs(e) @r) & not (Ex e #r. RevKgu(e) @r)"
+
+// L1  secrecy of SK resting on ML-DSA and the ephemeral layer (forward
+//     secrecy): every long term ML-KEM key may leak at any time, every long
+//     term ML-DSA key may leak after the key is established, k_su may leak
+lemma secrecy_dsa [heuristic={macfirst}, hide_lemma=auth_secret]:
+  "All R U S G sk #i.
+      SKey(R, U, S, G, sk) @i
+    & not (Ex #r. RevSig(U) @r & r < i)
+    & not (Ex #r. RevSig(S) @r & r < i)
+    & not (Ex #r. RevSig(G) @r & r < i)
+    & not (Ex e #r. RevEph(e) @r)
+    & not (Ex e #r. RevKgs(e) @r) & not (Ex e #r. RevKgu(e) @r)
+    ==> not (Ex #j. K(sk) @j)"
+
+// L2  secrecy of SK resting on ML-KEM alone: every ML-DSA key may leak at
+//     any time (ML-DSA broken), and every ephemeral key and every session
+//     secret may leak, as long as the long term ML-KEM keys of the three
+//     parties do not
+lemma secrecy_kem [heuristic={kemmode}, hide_lemma=gs_secret_kgs, hide_lemma=gs_secret_kgu]:
+  "All R U S G sk #i.
+      SKey(R, U, S, G, sk) @i
+    & not (Ex #r. RevKem(U) @r) & not (Ex #r. RevKem(S) @r) & not (Ex #r. RevKem(G) @r)
+    ==> not (Ex #j. K(sk) @j)"
+
+// L3  injective agreement on SK for all six ordered pairs, resting on ML-DSA
+lemma agree_dsa_ue_gs [heuristic={macfirst}, hide_lemma=auth_secret]:
+  "All U S G sk #i. Commit('UE', 'GS', U, S, G, sk) @i
+    ==> (Ex #j. Running('GS', U, S, G, sk) @j & j < i
+           & not (Ex U2 S2 G2 #i2. Commit('UE', 'GS', U2, S2, G2, sk) @i2 & not (#i2 = #i)))
+      | (Ex #r. RevSig(U) @r & r < i) | (Ex #r. RevSig(S) @r & r < i) | (Ex #r. RevSig(G) @r & r < i)
+      | (Ex e #r. RevEph(e) @r) | (Ex e #r. RevKgs(e) @r) | (Ex e #r. RevKgu(e) @r)"
+
+lemma agree_dsa_ue_sat [heuristic={macfirst}, hide_lemma=auth_secret]:
+  "All U S G sk #i. Commit('UE', 'SAT', U, S, G, sk) @i
+    ==> (Ex #j. Running('SAT', U, S, G, sk) @j & j < i
+           & not (Ex U2 S2 G2 #i2. Commit('UE', 'SAT', U2, S2, G2, sk) @i2 & not (#i2 = #i)))
+      | (Ex #r. RevSig(U) @r & r < i) | (Ex #r. RevSig(S) @r & r < i) | (Ex #r. RevSig(G) @r & r < i)
+      | (Ex e #r. RevEph(e) @r) | (Ex e #r. RevKgs(e) @r) | (Ex e #r. RevKgu(e) @r)"
+
+lemma agree_dsa_sat_gs [heuristic={macfirst}, hide_lemma=auth_secret]:
+  "All U S G sk #i. Commit('SAT', 'GS', U, S, G, sk) @i
+    ==> (Ex #j. Running('GS', U, S, G, sk) @j & j < i
+           & not (Ex U2 S2 G2 #i2. Commit('SAT', 'GS', U2, S2, G2, sk) @i2 & not (#i2 = #i)))
+      | (Ex #r. RevSig(U) @r & r < i) | (Ex #r. RevSig(S) @r & r < i) | (Ex #r. RevSig(G) @r & r < i)
+      | (Ex e #r. RevEph(e) @r) | (Ex e #r. RevKgs(e) @r) | (Ex e #r. RevKgu(e) @r)"
+
+lemma agree_dsa_sat_ue [heuristic={macfirst}, hide_lemma=auth_secret]:
+  "All U S G sk #i. Commit('SAT', 'UE', U, S, G, sk) @i
+    ==> (Ex #j. Running('UE', U, S, G, sk) @j & j < i
+           & not (Ex U2 S2 G2 #i2. Commit('SAT', 'UE', U2, S2, G2, sk) @i2 & not (#i2 = #i)))
+      | (Ex #r. RevSig(U) @r & r < i) | (Ex #r. RevSig(S) @r & r < i) | (Ex #r. RevSig(G) @r & r < i)
+      | (Ex e #r. RevEph(e) @r) | (Ex e #r. RevKgs(e) @r) | (Ex e #r. RevKgu(e) @r)"
+
+lemma agree_dsa_gs_ue [heuristic={macfirst}, hide_lemma=auth_secret]:
+  "All U S G sk #i. Commit('GS', 'UE', U, S, G, sk) @i
+    ==> (Ex #j. Running('UE', U, S, G, sk) @j & j < i
+           & not (Ex U2 S2 G2 #i2. Commit('GS', 'UE', U2, S2, G2, sk) @i2 & not (#i2 = #i)))
+      | (Ex #r. RevSig(U) @r & r < i) | (Ex #r. RevSig(S) @r & r < i) | (Ex #r. RevSig(G) @r & r < i)
+      | (Ex e #r. RevEph(e) @r) | (Ex e #r. RevKgs(e) @r) | (Ex e #r. RevKgu(e) @r)"
+
+lemma agree_dsa_gs_sat [heuristic={macfirst}, hide_lemma=auth_secret]:
+  "All U S G sk #i. Commit('GS', 'SAT', U, S, G, sk) @i
+    ==> (Ex #j. Running('SAT', U, S, G, sk) @j & j < i
+           & not (Ex U2 S2 G2 #i2. Commit('GS', 'SAT', U2, S2, G2, sk) @i2 & not (#i2 = #i)))
+      | (Ex #r. RevSig(U) @r & r < i) | (Ex #r. RevSig(S) @r & r < i) | (Ex #r. RevSig(G) @r & r < i)
+      | (Ex e #r. RevEph(e) @r) | (Ex e #r. RevKgs(e) @r) | (Ex e #r. RevKgu(e) @r)"
+
+// L4  the same six, resting on ML-KEM alone (ML-DSA broken)
+lemma agree_kem_ue_gs [heuristic={kemmode}, hide_lemma=gs_secret_kgs, hide_lemma=gs_secret_kgu]:
+  "All U S G sk #i. Commit('UE', 'GS', U, S, G, sk) @i
+    ==> (Ex #j. Running('GS', U, S, G, sk) @j & j < i
+           & not (Ex U2 S2 G2 #i2. Commit('UE', 'GS', U2, S2, G2, sk) @i2 & not (#i2 = #i)))
+      | (Ex #r. RevKem(U) @r) | (Ex #r. RevKem(S) @r) | (Ex #r. RevKem(G) @r)"
+
+lemma agree_kem_ue_sat [heuristic={kemmode}, hide_lemma=gs_secret_kgs, hide_lemma=gs_secret_kgu]:
+  "All U S G sk #i. Commit('UE', 'SAT', U, S, G, sk) @i
+    ==> (Ex #j. Running('SAT', U, S, G, sk) @j & j < i
+           & not (Ex U2 S2 G2 #i2. Commit('UE', 'SAT', U2, S2, G2, sk) @i2 & not (#i2 = #i)))
+      | (Ex #r. RevKem(U) @r) | (Ex #r. RevKem(S) @r) | (Ex #r. RevKem(G) @r)"
+
+lemma agree_kem_sat_gs [heuristic={kemmode}, hide_lemma=gs_secret_kgs, hide_lemma=gs_secret_kgu]:
+  "All U S G sk #i. Commit('SAT', 'GS', U, S, G, sk) @i
+    ==> (Ex #j. Running('GS', U, S, G, sk) @j & j < i
+           & not (Ex U2 S2 G2 #i2. Commit('SAT', 'GS', U2, S2, G2, sk) @i2 & not (#i2 = #i)))
+      | (Ex #r. RevKem(U) @r) | (Ex #r. RevKem(S) @r) | (Ex #r. RevKem(G) @r)"
+
+lemma agree_kem_sat_ue [heuristic={kemmode}, hide_lemma=gs_secret_kgs, hide_lemma=gs_secret_kgu]:
+  "All U S G sk #i. Commit('SAT', 'UE', U, S, G, sk) @i
+    ==> (Ex #j. Running('UE', U, S, G, sk) @j & j < i
+           & not (Ex U2 S2 G2 #i2. Commit('SAT', 'UE', U2, S2, G2, sk) @i2 & not (#i2 = #i)))
+      | (Ex #r. RevKem(U) @r) | (Ex #r. RevKem(S) @r) | (Ex #r. RevKem(G) @r)"
+
+lemma agree_kem_gs_ue [heuristic={kemmode}, hide_lemma=gs_secret_kgs, hide_lemma=gs_secret_kgu]:
+  "All U S G sk #i. Commit('GS', 'UE', U, S, G, sk) @i
+    ==> (Ex #j. Running('UE', U, S, G, sk) @j & j < i
+           & not (Ex U2 S2 G2 #i2. Commit('GS', 'UE', U2, S2, G2, sk) @i2 & not (#i2 = #i)))
+      | (Ex #r. RevKem(U) @r) | (Ex #r. RevKem(S) @r) | (Ex #r. RevKem(G) @r)"
+
+lemma agree_kem_gs_sat [heuristic={kemmode}, hide_lemma=gs_secret_kgs, hide_lemma=gs_secret_kgu]:
+  "All U S G sk #i. Commit('GS', 'SAT', U, S, G, sk) @i
+    ==> (Ex #j. Running('SAT', U, S, G, sk) @j & j < i
+           & not (Ex U2 S2 G2 #i2. Commit('GS', 'SAT', U2, S2, G2, sk) @i2 & not (#i2 = #i)))
+      | (Ex #r. RevKem(U) @r) | (Ex #r. RevKem(S) @r) | (Ex #r. RevKem(G) @r)"
+
+/* ------------------------------------------------------------------ */
+/* Limit that remains, shown by a trace                                */
+/* ------------------------------------------------------------------ */
+
+// R0  the two conditions are tight: with BOTH long term keys of the
+//     satellite (ML-DSA and ML-KEM) the adversary takes the place of the
+//     satellite and learns SK. No satellite takes part in this trace.
+lemma R0_both_keys_of_one_party [heuristic={kemmode}, hide_lemma=gs_secret_kgs, hide_lemma=gs_secret_kgu]:
+  exists-trace
+  "Ex U S G muU sk #a #i #j. UE_Start(U, S, G, muU) @a & SKey('GS', U, S, G, sk) @i & K(sk) @j
+    & not (Ex S2 X G2 muX epk #r. SAT_AcceptMsg1(S2, X, G2, muX, epk) @r)
+    & (All U2 S2 G2 m #x. UE_Start(U2, S2, G2, m) @x ==> #x = #a)
+    & (All G2 U2 S2 m1 m2 #x. GS_AcceptMsg2(G2, U2, S2, m1, m2) @x ==> U2 = U & S2 = S & G2 = G)
+    & not (U = S) & not (S = G) & not (U = G)
+    & (All X #r. RevSig(X) @r ==> X = S)
+    & (All X #r. RevKem(X) @r ==> X = S)
+    & not (Ex e #r. RevEph(e) @r) & not (Ex e #r. RevKsu(e) @r)
+    & not (Ex e #r. RevKgs(e) @r) & not (Ex e #r. RevKgu(e) @r)"
+
+end

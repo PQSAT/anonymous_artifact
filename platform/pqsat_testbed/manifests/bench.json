@@ -1,0 +1,13 @@
+{
+ "name": "bench",
+ "description": "The two satellite bench of 27 October 2026: SAT-1 (feeder, ground station on its radio) and SAT-2 (serving the user) on the Versal, four T-Beams, no orbit; visibility is permanent and handover is commanded.",
+ "walker": {"satellites": 2, "planes": 1, "phasing": 0},
+ "altitude_km": 1200, "inclination_deg": 87.9, "raan0_deg": -100, "min_elevation_deg": -90,
+ "static": true,
+ "isl": {"topology": "ring", "pairs": [["SAT-1", "SAT-2"]]},
+ "radio": {"profile": "SF9", "bandwidth_khz": 125, "coding_rate": "4/7", "frequency_mhz": 868},
+ "satellites": [
+  {"name": "SAT-1", "scid": 257, "plane": 0, "slot": 0, "uplink_mhz": 868.1, "downlink_mhz": 869.525, "runs_on": "Versal A", "role": "feeder"},
+  {"name": "SAT-2", "scid": 258, "plane": 0, "slot": 4, "uplink_mhz": 868.3, "downlink_mhz": 868.5, "runs_on": "Versal B", "role": "serving"}
+ ]
+}

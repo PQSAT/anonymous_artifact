@@ -1,0 +1,702 @@
+[
+ {
+  "mode": "ref",
+  "ok": true,
+  "seconds": 714.826,
+  "sk_user": "7ae7a2dc00470c283e8b42750e069c91a35fd25b7489daf84303c79e0eb0c5bb",
+  "sk_ground": "ef207393d4f19ececc8f4f11dc4137767c0f5b9e00e20709ffe057da51194835",
+  "sk_session": "7ae7a2dc00470c283e8b42750e069c91a35fd25b7489daf84303c79e0eb0c5bb",
+  "octets_total": 34546,
+  "uplink_segments": 58,
+  "uplink_retransmissions": 3,
+  "downlink_frames": 153,
+  "downlink_lost": 46,
+  "downlink_naks": 8,
+  "downlink_repaired": 32,
+  "messages": [
+   {
+    "msg": "MSG1",
+    "direction": "up",
+    "octets": 5692,
+    "segments": 25,
+    "retransmissions": 1,
+    "rtts": 25,
+    "seconds": 64.257,
+    "ok": true
+   },
+   {
+    "msg": "MSG2",
+    "direction": "down",
+    "octets": 11402,
+    "frames": 89,
+    "lost": 46,
+    "naks": 8,
+    "repaired": 32,
+    "seconds": 416.714
+   },
+   {
+    "msg": "MSG3",
+    "direction": "up",
+    "octets": 6678,
+    "segments": 29,
+    "retransmissions": 1,
+    "rtts": 29,
+    "seconds": 73.053,
+    "ok": true
+   },
+   {
+    "msg": "MSG4",
+    "direction": "down",
+    "octets": 10186,
+    "frames": 60,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 143.659
+   },
+   {
+    "msg": "MSG5",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 5.782,
+    "ok": true
+   },
+   {
+    "msg": "MSG6",
+    "direction": "down",
+    "octets": 114,
+    "frames": 2,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 2.806
+   },
+   {
+    "msg": "MSG7",
+    "direction": "up",
+    "octets": 194,
+    "segments": 1,
+    "retransmissions": 0,
+    "rtts": 1,
+    "seconds": 1.996,
+    "ok": true
+   },
+   {
+    "msg": "MSG7f",
+    "direction": "down",
+    "octets": 146,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 3.077
+   },
+   {
+    "msg": "MSG8",
+    "direction": "up",
+    "octets": 34,
+    "segments": 1,
+    "retransmissions": 0,
+    "rtts": 1,
+    "seconds": 1.884,
+    "ok": true
+   },
+   {
+    "msg": "MSG8",
+    "direction": "down",
+    "octets": 66,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 0.821
+   }
+  ],
+  "sdls": {
+   "user": true,
+   "ground": true
+  },
+  "user_timing_ms": {
+   "kem_encaps": 4.849,
+   "kem_keygen": 0.88,
+   "hybrid_sign": 2.27,
+   "hybrid_verify": 0.517,
+   "kem_decaps": 0.368,
+   "unwrap": 0.09
+  },
+  "ground_timing_ms": {
+   "hybrid_verify": 0.471,
+   "kem_decaps": 0.116,
+   "kem_encaps": 1.363,
+   "hybrid_sign": 0.572,
+   "unwrap": 0.17,
+   "wrap": 0.099
+  },
+  "serving_satellite": "0x102",
+  "run": 1,
+  "started": "2026-11-16 15:47:38"
+ },
+ {
+  "mode": "ref",
+  "ok": true,
+  "seconds": 551.717,
+  "sk_user": "83fd6020682cc911db4278f6a640ee576928472ba9c1cb12e91542a34352c9b0",
+  "sk_ground": "01b527e9ef6af2259b92631880b4402668afb3c19a0045577094b3f12bb42680",
+  "sk_session": "83fd6020682cc911db4278f6a640ee576928472ba9c1cb12e91542a34352c9b0",
+  "octets_total": 34546,
+  "uplink_segments": 66,
+  "uplink_retransmissions": 5,
+  "downlink_frames": 149,
+  "downlink_lost": 0,
+  "downlink_naks": 0,
+  "downlink_repaired": 0,
+  "messages": [
+   {
+    "msg": "MSG1",
+    "direction": "up",
+    "octets": 5692,
+    "segments": 28,
+    "retransmissions": 1,
+    "rtts": 28,
+    "seconds": 72.049,
+    "ok": true
+   },
+   {
+    "msg": "MSG2",
+    "direction": "down",
+    "octets": 11402,
+    "frames": 78,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 208.515
+   },
+   {
+    "msg": "MSG3",
+    "direction": "up",
+    "octets": 6678,
+    "segments": 32,
+    "retransmissions": 1,
+    "rtts": 32,
+    "seconds": 80.703,
+    "ok": true
+   },
+   {
+    "msg": "MSG4",
+    "direction": "down",
+    "octets": 10186,
+    "frames": 68,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 157.831
+   },
+   {
+    "msg": "MSG5",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 6.231,
+    "ok": true
+   },
+   {
+    "msg": "MSG6",
+    "direction": "down",
+    "octets": 114,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 3.594
+   },
+   {
+    "msg": "MSG7",
+    "direction": "up",
+    "octets": 194,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 9.356,
+    "ok": true
+   },
+   {
+    "msg": "MSG7f",
+    "direction": "down",
+    "octets": 146,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 3.596
+   },
+   {
+    "msg": "MSG8",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 7.125,
+    "ok": true
+   },
+   {
+    "msg": "MSG8",
+    "direction": "down",
+    "octets": 66,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 2.703
+   }
+  ],
+  "sdls": {
+   "user": true,
+   "ground": true
+  },
+  "user_timing_ms": {
+   "kem_encaps": 0.285,
+   "kem_keygen": 0.164,
+   "hybrid_sign": 1.219,
+   "hybrid_verify": 0.533,
+   "kem_decaps": 0.552,
+   "unwrap": 0.044
+  },
+  "ground_timing_ms": {
+   "hybrid_verify": 0.503,
+   "kem_decaps": 0.185,
+   "kem_encaps": 0.894,
+   "hybrid_sign": 1.871,
+   "unwrap": 0.054,
+   "wrap": 0.081
+  },
+  "serving_satellite": "0x102",
+  "run": 2,
+  "started": "2026-11-16 15:56:50"
+ },
+ {
+  "mode": "ref",
+  "ok": true,
+  "seconds": 544.215,
+  "sk_user": "3e66faacbcc60776a9bcf0a901d76f028933953170cdacc4e15a2762960d07c2",
+  "sk_ground": "b15b49b8bf7ea8415d28f19d00699ee4fe1545337f8bc9794f350b918833d2b8",
+  "sk_session": "3e66faacbcc60776a9bcf0a901d76f028933953170cdacc4e15a2762960d07c2",
+  "octets_total": 34546,
+  "uplink_segments": 65,
+  "uplink_retransmissions": 4,
+  "downlink_frames": 150,
+  "downlink_lost": 0,
+  "downlink_naks": 0,
+  "downlink_repaired": 0,
+  "messages": [
+   {
+    "msg": "MSG1",
+    "direction": "up",
+    "octets": 5692,
+    "segments": 27,
+    "retransmissions": 0,
+    "rtts": 27,
+    "seconds": 64.406,
+    "ok": true
+   },
+   {
+    "msg": "MSG2",
+    "direction": "down",
+    "octets": 11402,
+    "frames": 79,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 208.543
+   },
+   {
+    "msg": "MSG3",
+    "direction": "up",
+    "octets": 6678,
+    "segments": 32,
+    "retransmissions": 1,
+    "rtts": 32,
+    "seconds": 80.799,
+    "ok": true
+   },
+   {
+    "msg": "MSG4",
+    "direction": "down",
+    "octets": 10186,
+    "frames": 68,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 157.836
+   },
+   {
+    "msg": "MSG5",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 6.194,
+    "ok": true
+   },
+   {
+    "msg": "MSG6",
+    "direction": "down",
+    "octets": 114,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 3.571
+   },
+   {
+    "msg": "MSG7",
+    "direction": "up",
+    "octets": 194,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 9.321,
+    "ok": true
+   },
+   {
+    "msg": "MSG7f",
+    "direction": "down",
+    "octets": 146,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 3.684
+   },
+   {
+    "msg": "MSG8",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 7.103,
+    "ok": true
+   },
+   {
+    "msg": "MSG8",
+    "direction": "down",
+    "octets": 66,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 2.743
+   }
+  ],
+  "sdls": {
+   "user": true,
+   "ground": true
+  },
+  "user_timing_ms": {
+   "kem_encaps": 0.652,
+   "kem_keygen": 0.376,
+   "hybrid_sign": 0.695,
+   "hybrid_verify": 1.307,
+   "kem_decaps": 1.029,
+   "unwrap": 0.118
+  },
+  "ground_timing_ms": {
+   "hybrid_verify": 0.454,
+   "kem_decaps": 0.111,
+   "kem_encaps": 1.059,
+   "hybrid_sign": 0.799,
+   "unwrap": 0.292,
+   "wrap": 0.136
+  },
+  "serving_satellite": "0x102",
+  "run": 3,
+  "started": "2026-11-16 16:05:54"
+ },
+ {
+  "mode": "ref",
+  "ok": true,
+  "seconds": 545.452,
+  "sk_user": "2f1eaaa7fd5787cca690fb0a254a4571c43f441153a7eda57bbfd1ba4be781db",
+  "sk_ground": "3f29e2ac6c686073e05f2d87606b8b0913035fac9170f111f43d4ebcd27aca19",
+  "sk_session": "2f1eaaa7fd5787cca690fb0a254a4571c43f441153a7eda57bbfd1ba4be781db",
+  "octets_total": 34546,
+  "uplink_segments": 65,
+  "uplink_retransmissions": 4,
+  "downlink_frames": 151,
+  "downlink_lost": 0,
+  "downlink_naks": 0,
+  "downlink_repaired": 0,
+  "messages": [
+   {
+    "msg": "MSG1",
+    "direction": "up",
+    "octets": 5692,
+    "segments": 27,
+    "retransmissions": 0,
+    "rtts": 27,
+    "seconds": 64.175,
+    "ok": true
+   },
+   {
+    "msg": "MSG2",
+    "direction": "down",
+    "octets": 11402,
+    "frames": 79,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 208.547
+   },
+   {
+    "msg": "MSG3",
+    "direction": "up",
+    "octets": 6678,
+    "segments": 32,
+    "retransmissions": 1,
+    "rtts": 32,
+    "seconds": 80.82,
+    "ok": true
+   },
+   {
+    "msg": "MSG4",
+    "direction": "down",
+    "octets": 10186,
+    "frames": 68,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 157.901
+   },
+   {
+    "msg": "MSG5",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 6.214,
+    "ok": true
+   },
+   {
+    "msg": "MSG6",
+    "direction": "down",
+    "octets": 114,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 4.937
+   },
+   {
+    "msg": "MSG7",
+    "direction": "up",
+    "octets": 194,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 9.321,
+    "ok": true
+   },
+   {
+    "msg": "MSG7f",
+    "direction": "down",
+    "octets": 146,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 3.591
+   },
+   {
+    "msg": "MSG8",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 7.108,
+    "ok": true
+   },
+   {
+    "msg": "MSG8",
+    "direction": "down",
+    "octets": 66,
+    "frames": 2,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 2.823
+   }
+  ],
+  "sdls": {
+   "user": true,
+   "ground": true
+  },
+  "user_timing_ms": {
+   "kem_encaps": 0.493,
+   "kem_keygen": 0.365,
+   "hybrid_sign": 1.308,
+   "hybrid_verify": 0.742,
+   "kem_decaps": 0.436,
+   "unwrap": 0.112
+  },
+  "ground_timing_ms": {
+   "hybrid_verify": 1.088,
+   "kem_decaps": 0.306,
+   "kem_encaps": 1.358,
+   "hybrid_sign": 1.128,
+   "unwrap": 0.046,
+   "wrap": 0.055
+  },
+  "serving_satellite": "0x102",
+  "run": 4,
+  "started": "2026-11-16 16:15:00"
+ },
+ {
+  "mode": "ref",
+  "ok": true,
+  "seconds": 545.608,
+  "sk_user": "9d964a7b9904fdc5526cdb0596dbbd4554ac36977a3e1b3a7eb178dada2de63a",
+  "sk_ground": "cac9af1985187e8eaa40ef1be7eabcffe0e6fa812679219a04412d526043072f",
+  "sk_session": "9d964a7b9904fdc5526cdb0596dbbd4554ac36977a3e1b3a7eb178dada2de63a",
+  "octets_total": 34546,
+  "uplink_segments": 65,
+  "uplink_retransmissions": 4,
+  "downlink_frames": 149,
+  "downlink_lost": 0,
+  "downlink_naks": 0,
+  "downlink_repaired": 0,
+  "messages": [
+   {
+    "msg": "MSG1",
+    "direction": "up",
+    "octets": 5692,
+    "segments": 27,
+    "retransmissions": 0,
+    "rtts": 27,
+    "seconds": 64.297,
+    "ok": true
+   },
+   {
+    "msg": "MSG2",
+    "direction": "down",
+    "octets": 11402,
+    "frames": 79,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 209.888
+   },
+   {
+    "msg": "MSG3",
+    "direction": "up",
+    "octets": 6678,
+    "segments": 32,
+    "retransmissions": 1,
+    "rtts": 32,
+    "seconds": 80.744,
+    "ok": true
+   },
+   {
+    "msg": "MSG4",
+    "direction": "down",
+    "octets": 10186,
+    "frames": 67,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 157.933
+   },
+   {
+    "msg": "MSG5",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 6.147,
+    "ok": true
+   },
+   {
+    "msg": "MSG6",
+    "direction": "down",
+    "octets": 114,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 3.652
+   },
+   {
+    "msg": "MSG7",
+    "direction": "up",
+    "octets": 194,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 9.401,
+    "ok": true
+   },
+   {
+    "msg": "MSG7f",
+    "direction": "down",
+    "octets": 146,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 3.663
+   },
+   {
+    "msg": "MSG8",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 7.184,
+    "ok": true
+   },
+   {
+    "msg": "MSG8",
+    "direction": "down",
+    "octets": 66,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 2.682
+   }
+  ],
+  "sdls": {
+   "user": true,
+   "ground": true
+  },
+  "user_timing_ms": {
+   "kem_encaps": 0.73,
+   "kem_keygen": 0.604,
+   "hybrid_sign": 2.446,
+   "hybrid_verify": 0.519,
+   "kem_decaps": 0.399,
+   "unwrap": 0.042
+  },
+  "ground_timing_ms": {
+   "hybrid_verify": 0.55,
+   "kem_decaps": 0.132,
+   "kem_encaps": 1.317,
+   "hybrid_sign": 0.623,
+   "unwrap": 0.467,
+   "wrap": 0.386
+  },
+  "serving_satellite": "0x102",
+  "run": 5,
+  "started": "2026-11-16 16:24:06"
+ }
+]

@@ -1,0 +1,24 @@
+[GS] COP-1 ready, V(S)=0
+[USER1] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (249 ms)
+PASS 1. full mode, certificates installed: satellite up
+PASS 1. full mode, certificates installed: handshake completes  [235.069 s, 79990 octets]
+PASS 1. full mode, certificates installed: no certificate rejected
+[GS] closed
+[USER1] closed
+[GS] COP-1 ready, V(S)=0
+[USER1] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (233 ms)
+PASS 2. first contact, user certificate not installed at the satellite: satellite up
+[GS] COP-1 ready, V(S)=0
+[USER1] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (230 ms)
+PASS 2. first contact, user certificate not installed at the satellite: satellite up
+PASS 2. first contact, user certificate not installed at the satellite: handshake completes  [194.747 s, 64842 octets]
+PASS 2. first contact, user certificate not installed at the satellite: no certificate rejected
+[GS] closed
+[USER1] closed
+PASS 2. the candidate certificate was kept, the handshake having completed
+
+4/4 checks passed
+exit 0

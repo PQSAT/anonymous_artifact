@@ -1,0 +1,26 @@
+{
+ "started": "2026-11-17 12:16:18",
+ "rule_on_board": true,
+ "attempts": [
+  {
+   "n": 1,
+   "reached": "MSG4",
+   "error": "certificate received in band differs from the installed one",
+   "seconds": 454.1,
+   "adversary_has_sk": false,
+   "user_holds_forged": false
+  },
+  {
+   "n": 2,
+   "reached": "MSG4",
+   "error": "certificate received in band differs from the installed one",
+   "seconds": 450.5,
+   "adversary_has_sk": false,
+   "user_holds_forged": false
+  }
+ ],
+ "honest_after": {
+  "ok": false,
+  "error": "satellite signature rejected"
+ }
+}

@@ -1,0 +1,144 @@
+[
+ {
+  "mode": "full",
+  "ok": true,
+  "seconds": 900.449,
+  "sk_user": "76a793bcd2e4a6c602387497c21bca88c17c23fc33895caeeff032d31d0ade50",
+  "sk_ground": "90b93247de91444cabba37495440fb21b2ad0d638a4600048e692761736c5a38",
+  "sk_session": "76a793bcd2e4a6c602387497c21bca88c17c23fc33895caeeff032d31d0ade50",
+  "octets_total": 64842,
+  "uplink_segments": 118,
+  "uplink_retransmissions": 3,
+  "downlink_frames": 226,
+  "downlink_lost": 0,
+  "downlink_naks": 0,
+  "downlink_repaired": 0,
+  "messages": [
+   {
+    "msg": "MSG1",
+    "direction": "up",
+    "octets": 13266,
+    "segments": 54,
+    "retransmissions": 0,
+    "rtts": 54,
+    "seconds": 130.061,
+    "ok": true
+   },
+   {
+    "msg": "MSG2",
+    "direction": "down",
+    "octets": 18976,
+    "frames": 116,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 328.175
+   },
+   {
+    "msg": "MSG3",
+    "direction": "up",
+    "octets": 14252,
+    "segments": 60,
+    "retransmissions": 2,
+    "rtts": 60,
+    "seconds": 152.752,
+    "ok": true
+   },
+   {
+    "msg": "MSG4",
+    "direction": "down",
+    "octets": 17760,
+    "frames": 105,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 270.378
+   },
+   {
+    "msg": "MSG5",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 5.775,
+    "ok": true
+   },
+   {
+    "msg": "MSG6",
+    "direction": "down",
+    "octets": 114,
+    "frames": 2,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 3.569
+   },
+   {
+    "msg": "MSG7",
+    "direction": "up",
+    "octets": 194,
+    "segments": 1,
+    "retransmissions": 0,
+    "rtts": 1,
+    "seconds": 2.078,
+    "ok": true
+   },
+   {
+    "msg": "MSG7f",
+    "direction": "down",
+    "octets": 146,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 4.179
+   },
+   {
+    "msg": "MSG8",
+    "direction": "up",
+    "octets": 34,
+    "segments": 1,
+    "retransmissions": 0,
+    "rtts": 1,
+    "seconds": 1.882,
+    "ok": true
+   },
+   {
+    "msg": "MSG8",
+    "direction": "down",
+    "octets": 66,
+    "frames": 2,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 1.524
+   }
+  ],
+  "sdls": {
+   "user": true,
+   "ground": true
+  },
+  "user_timing_ms": {
+   "kem_encaps": 3.684,
+   "kem_keygen": 0.408,
+   "hybrid_sign": 0.809,
+   "cert_verify": 0.356,
+   "hybrid_verify": 0.528,
+   "kem_decaps": 0.415,
+   "unwrap": 0.103
+  },
+  "ground_timing_ms": {
+   "cert_verify": 0.58,
+   "hybrid_verify": 0.89,
+   "kem_decaps": 0.254,
+   "kem_encaps": 2.435,
+   "hybrid_sign": 2.739,
+   "unwrap": 0.187,
+   "wrap": 0.204
+  },
+  "serving_satellite": "0x102",
+  "run": 1,
+  "started": "2026-11-16 19:53:39"
+ }
+]

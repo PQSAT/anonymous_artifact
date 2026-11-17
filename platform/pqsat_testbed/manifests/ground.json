@@ -1,0 +1,14 @@
+{
+ "ground_stations": [
+  {
+   "name": "Site A",
+   "id": 1,
+   "lat": 54.5973,
+   "lon": -5.9301,
+   "alt_km": 0.02,
+   "min_elevation_deg": 10,
+   "radio": "/dev/ttyACM0",
+   "role": "mission control and key management authority"
+  }
+ ]
+}

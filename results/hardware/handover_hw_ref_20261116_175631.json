@@ -1,0 +1,71 @@
+[
+ {
+  "run": 1,
+  "started": "2026-11-16 17:58:00",
+  "mode": "ref",
+  "handshake": {
+   "ok": true,
+   "seconds": 495.675,
+   "serving": "0x102"
+  },
+  "ground_link_keyed_after_s": 44.3,
+  "order": {
+   "result": "DELIVERED (ACK lost)",
+   "seconds": 21.1
+  },
+  "handover_tries": 2,
+  "handover": {
+   "seconds": 62.5,
+   "user_heard_sat1": true,
+   "traffic_delivered": true,
+   "derived_key_used": true,
+   "handshake_would_cost_s": 495.675
+  }
+ },
+ {
+  "run": 2,
+  "started": "2026-11-16 18:08:02",
+  "mode": "ref",
+  "handshake": {
+   "ok": true,
+   "seconds": 517.286,
+   "serving": "0x102"
+  },
+  "ground_link_keyed_after_s": 39.8,
+  "order": {
+   "result": "DELIVERED (ACK lost)",
+   "seconds": 21.1
+  },
+  "handover_tries": 2,
+  "handover": {
+   "seconds": 65.3,
+   "user_heard_sat1": true,
+   "traffic_delivered": true,
+   "derived_key_used": true,
+   "handshake_would_cost_s": 517.286
+  }
+ },
+ {
+  "run": 3,
+  "started": "2026-11-16 18:18:59",
+  "mode": "ref",
+  "handshake": {
+   "ok": true,
+   "seconds": 509.978,
+   "serving": "0x102"
+  },
+  "ground_link_keyed_after_s": 40.2,
+  "order": {
+   "result": "DELIVERED (ACK lost)",
+   "seconds": 21.1
+  },
+  "handover_tries": 2,
+  "handover": {
+   "seconds": 65.3,
+   "user_heard_sat1": true,
+   "traffic_delivered": true,
+   "derived_key_used": true,
+   "handshake_would_cost_s": 509.978
+  }
+ }
+]

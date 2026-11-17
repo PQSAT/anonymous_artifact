@@ -1,0 +1,31 @@
+Restart of the inter satellite association on the board, 17 November 2026.
+Console output of gs/isl_restart_hw.py.  The frames are in logs/sat1_bridge_log_isl.csv.gz and the
+reactions of SAT-2 in logs/sat1_bridge_log_sat2.csv.gz.
+
+Round 1, record (board started with the provisioned key)
+    10 of 10 forwarded commands executed, 15 ISL frames of SAT-1 saved to isl_recorded.txt
+    salt A30F834D, frame counters 3 to 17
+
+Round 2, restart with the SAME key file (comparison), then replay and record
+    frames recorded before the restart and sent again: 15
+       rejected by SDLS at SAT-2: 7
+       forwarded commands executed again at SAT-2: 10
+    new traffic: 10 of 10 forwarded commands executed, 8 ISL frames
+       salt A30F834D, first frame counter 10
+       IVs of the saved frames used again by the new frames: 8
+    10 of 10 forwarded commands executed, 17 ISL frames of SAT-1 saved to isl_recorded.txt
+    salt A30F834D, frame counters 25 to 41
+
+Round 3, restart with a NEW key file (the rule of the design), then replay and record
+    frames recorded before the restart and sent again: 17
+       rejected by SDLS at SAT-2: 17
+       forwarded commands executed again at SAT-2: 0
+    new traffic: 10 of 10 forwarded commands executed, 16 ISL frames
+       salt 6CC17FE1, first frame counter 10
+       IVs of the saved frames used again by the new frames: 0
+    10 of 10 forwarded commands executed, 16 ISL frames of SAT-1 saved to isl_recorded.txt
+    salt 6CC17FE1, frame counters 29 to 44
+
+Note on round 2: the acknowledgments of the new traffic arrived faster than an ISL round trip,
+so some of them belong to the replayed commands, which carried the same sequence numbers.
+The count "10 of 10" of that line is therefore not used in the paper.

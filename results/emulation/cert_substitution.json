@@ -1,0 +1,79 @@
+{
+ "A": {
+  "binary": "satsim_sf7_nopin",
+  "policy": false,
+  "attempts": [
+   {
+    "n": 1,
+    "reached": "MSG6",
+    "error": "wrap from satellite rejected",
+    "seconds": 149.9,
+    "adversary_has_sk": false,
+    "satellite_completed": false,
+    "satellite_rejected_at_msg3": false,
+    "user_holds_forged": true,
+    "satellite_lines": [
+     "auth: user verified, MSG2 to ground",
+     "auth: ground verified, MSG4 to user"
+    ]
+   },
+   {
+    "n": 2,
+    "reached": "done",
+    "error": null,
+    "seconds": 151.4,
+    "adversary_has_sk": true,
+    "satellite_completed": true,
+    "satellite_rejected_at_msg3": false,
+    "user_holds_forged": true,
+    "satellite_lines": [
+     "auth: user verified, MSG2 to ground",
+     "auth: ground verified, MSG4 to user",
+     "auth: handshake complete, SK 5b947066c6a551974dc5f320a7b5fc3f...",
+     "auth: satellite crypto this handshake, us: kem 489 sign 561 verify 382 cert 206 wrap 10"
+    ]
+   }
+  ]
+ },
+ "B": {
+  "binary": "satsim_sf7_pin",
+  "policy": true,
+  "attempts": [
+   {
+    "n": 1,
+    "reached": "MSG4",
+    "error": "no 0x04 from the satellite within 150 s",
+    "seconds": 245.4,
+    "adversary_has_sk": false,
+    "satellite_completed": false,
+    "satellite_rejected_at_msg3": true,
+    "user_holds_forged": false,
+    "satellite_lines": [
+     "auth: user verified, MSG2 to ground",
+     "auth: certificate received in band differs from the installed one, rejected",
+     "auth: message rejected: ground station certificate rejected"
+    ]
+   },
+   {
+    "n": 2,
+    "reached": "MSG4",
+    "error": "no 0x04 from the satellite within 150 s",
+    "seconds": 245.4,
+    "adversary_has_sk": false,
+    "satellite_completed": false,
+    "satellite_rejected_at_msg3": true,
+    "user_holds_forged": false,
+    "satellite_lines": [
+     "auth: user verified, MSG2 to ground",
+     "auth: certificate received in band differs from the installed one, rejected",
+     "auth: message rejected: ground station certificate rejected"
+    ]
+   }
+  ],
+  "honest_after": {
+   "ok": true,
+   "seconds": 108.692,
+   "octets": 34546
+  }
+ }
+}

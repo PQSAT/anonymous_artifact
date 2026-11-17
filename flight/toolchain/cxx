@@ -1,0 +1,2 @@
+#!/bin/sh
+exec python3 -m ziglang c++ -target aarch64-linux-gnu.2.36 -mcpu=cortex_a72 "$@" -Wno-newline-eof -Wno-gnu-zero-variadic-macro-arguments -Wno-unknown-warning-option -Wno-unused-function -Wno-error

@@ -1,0 +1,277 @@
+[
+ {
+  "mode": "ref",
+  "ok": true,
+  "seconds": 281.241,
+  "sk_user": "8aeb67f3d11814805ff99aa4b896680a5dc38282cbcbfc82f2fd6dcdac936aa9",
+  "sk_ground": "682f25952f1963c4c9f6870a7c156c32d15769e08a6374884b190f30b41bd26d",
+  "sk_session": "8aeb67f3d11814805ff99aa4b896680a5dc38282cbcbfc82f2fd6dcdac936aa9",
+  "octets_total": 34546,
+  "uplink_segments": 57,
+  "uplink_retransmissions": 2,
+  "downlink_frames": 122,
+  "downlink_lost": 0,
+  "downlink_naks": 0,
+  "downlink_repaired": 0,
+  "messages": [
+   {
+    "msg": "MSG1",
+    "direction": "up",
+    "octets": 5692,
+    "segments": 26,
+    "retransmissions": 2,
+    "rtts": 26,
+    "seconds": 28.798,
+    "ok": true
+   },
+   {
+    "msg": "MSG2",
+    "direction": "down",
+    "octets": 11402,
+    "frames": 63,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 127.42
+   },
+   {
+    "msg": "MSG3",
+    "direction": "up",
+    "octets": 6678,
+    "segments": 28,
+    "retransmissions": 0,
+    "rtts": 28,
+    "seconds": 28.543,
+    "ok": true
+   },
+   {
+    "msg": "MSG4",
+    "direction": "down",
+    "octets": 10186,
+    "frames": 55,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 87.694
+   },
+   {
+    "msg": "MSG5",
+    "direction": "up",
+    "octets": 34,
+    "segments": 1,
+    "retransmissions": 0,
+    "rtts": 1,
+    "seconds": 0.431,
+    "ok": true
+   },
+   {
+    "msg": "MSG6",
+    "direction": "down",
+    "octets": 114,
+    "frames": 2,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 2.349
+   },
+   {
+    "msg": "MSG7",
+    "direction": "up",
+    "octets": 194,
+    "segments": 1,
+    "retransmissions": 0,
+    "rtts": 1,
+    "seconds": 0.88,
+    "ok": true
+   },
+   {
+    "msg": "MSG7f",
+    "direction": "down",
+    "octets": 146,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 2.384
+   },
+   {
+    "msg": "MSG8",
+    "direction": "up",
+    "octets": 34,
+    "segments": 1,
+    "retransmissions": 0,
+    "rtts": 1,
+    "seconds": 1.435,
+    "ok": true
+   },
+   {
+    "msg": "MSG8",
+    "direction": "down",
+    "octets": 66,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 1.219
+   }
+  ],
+  "sdls": {
+   "user": true,
+   "ground": true
+  },
+  "user_timing_ms": {
+   "kem_encaps": 8.014,
+   "kem_keygen": 0.981,
+   "hybrid_sign": 2.695,
+   "hybrid_verify": 1.44,
+   "kem_decaps": 0.905,
+   "unwrap": 0.101
+  },
+  "ground_timing_ms": {
+   "hybrid_verify": 0.854,
+   "kem_decaps": 0.189,
+   "kem_encaps": 2.276,
+   "hybrid_sign": 0.925,
+   "unwrap": 0.219,
+   "wrap": 0.081
+  },
+  "serving_satellite": "0x102",
+  "orbit": {
+   "satellite": "SAT-7",
+   "max_elevation_deg": 88.6,
+   "pass_seconds": 1005.0,
+   "profile": "SF7",
+   "ptx_dbm": 22.0,
+   "range_km_at_rise": 3492.1,
+   "range_km_at_peak": 1414.1,
+   "margin_db_at_rise": -1.08,
+   "margin_db_at_peak": 6.77,
+   "doppler_hz_at_rise": 16658,
+   "doppler_hz_at_peak": -275,
+   "usable_from_s": 140.0,
+   "usable_to_s": 860.0,
+   "usable_seconds": 720.0,
+   "start_offset_s": 360.0,
+   "end_offset_s": 641.3,
+   "inside_pass": true,
+   "user_link": {
+    "sent": 28,
+    "sent_removed": 0,
+    "received": 98,
+    "received_removed": 0,
+    "outside_window": 0
+   },
+   "ground_link": {
+    "sent": 0,
+    "sent_removed": 0,
+    "received": 0,
+    "received_removed": 0,
+    "outside_window": 0
+   },
+   "ground_link_modelled": false,
+   "trace": [
+    {
+     "tau": 360.1,
+     "range_km": 1676.8,
+     "elevation_deg": 53.6,
+     "margin_db": 5.29,
+     "doppler_hz": 10001,
+     "doppler_penalty_db": 0.0,
+     "delay_ms": 5.59,
+     "visible": true,
+     "p_loss": 0.0
+    },
+    {
+     "tau": 394.6,
+     "range_km": 1568.3,
+     "elevation_deg": 61.5,
+     "margin_db": 5.87,
+     "doppler_hz": 8044,
+     "doppler_penalty_db": 0.0,
+     "delay_ms": 5.23,
+     "visible": true,
+     "p_loss": 0.0
+    },
+    {
+     "tau": 424.6,
+     "range_km": 1494.8,
+     "elevation_deg": 69.0,
+     "margin_db": 6.29,
+     "doppler_hz": 6022,
+     "doppler_penalty_db": 0.0,
+     "delay_ms": 4.99,
+     "visible": true,
+     "p_loss": 0.0
+    },
+    {
+     "tau": 454.6,
+     "range_km": 1443.7,
+     "elevation_deg": 77.1,
+     "margin_db": 6.59,
+     "doppler_hz": 3732,
+     "doppler_penalty_db": 0.0,
+     "delay_ms": 4.82,
+     "visible": true,
+     "p_loss": 0.0
+    },
+    {
+     "tau": 484.6,
+     "range_km": 1417.4,
+     "elevation_deg": 85.6,
+     "margin_db": 6.75,
+     "doppler_hz": 1246,
+     "doppler_penalty_db": 0.0,
+     "delay_ms": 4.73,
+     "visible": true,
+     "p_loss": 0.0
+    },
+    {
+     "tau": 514.7,
+     "range_km": 1417.3,
+     "elevation_deg": 85.7,
+     "margin_db": 6.75,
+     "doppler_hz": -1311,
+     "doppler_penalty_db": 0.0,
+     "delay_ms": 4.73,
+     "visible": true,
+     "p_loss": 0.0
+    },
+    {
+     "tau": 545.0,
+     "range_km": 1443.8,
+     "elevation_deg": 77.1,
+     "margin_db": 6.59,
+     "doppler_hz": -3816,
+     "doppler_penalty_db": 0.0,
+     "delay_ms": 4.82,
+     "visible": true,
+     "p_loss": 0.0
+    },
+    {
+     "tau": 584.7,
+     "range_km": 1516.4,
+     "elevation_deg": 66.5,
+     "margin_db": 6.17,
+     "doppler_hz": -6779,
+     "doppler_penalty_db": 0.0,
+     "delay_ms": 5.06,
+     "visible": true,
+     "p_loss": 0.0
+    },
+    {
+     "tau": 614.8,
+     "range_km": 1596.8,
+     "elevation_deg": 59.1,
+     "margin_db": 5.72,
+     "doppler_hz": -8696,
+     "doppler_penalty_db": 0.0,
+     "delay_ms": 5.33,
+     "visible": true,
+     "p_loss": 0.0
+    }
+   ]
+  },
+  "run": 1,
+  "started": "2026-11-17 16:18:38"
+ }
+]

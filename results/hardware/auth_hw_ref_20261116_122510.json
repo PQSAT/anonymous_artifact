@@ -1,0 +1,702 @@
+[
+ {
+  "mode": "ref",
+  "ok": true,
+  "seconds": 332.761,
+  "sk_user": "b6fc4222de7772d52cda1a5df53d7e501f3485fdef85f1167265c722620c5f6d",
+  "sk_ground": "51f41efa1bde3e951db89847b93f825da9d99ce039a9f0b61fc2e3a4ddc02344",
+  "sk_session": "b6fc4222de7772d52cda1a5df53d7e501f3485fdef85f1167265c722620c5f6d",
+  "octets_total": 34546,
+  "uplink_segments": 58,
+  "uplink_retransmissions": 3,
+  "downlink_frames": 120,
+  "downlink_lost": 0,
+  "downlink_naks": 0,
+  "downlink_repaired": 0,
+  "messages": [
+   {
+    "msg": "MSG1",
+    "direction": "up",
+    "octets": 5692,
+    "segments": 25,
+    "retransmissions": 1,
+    "rtts": 25,
+    "seconds": 62.004,
+    "ok": true
+   },
+   {
+    "msg": "MSG2",
+    "direction": "down",
+    "octets": 11402,
+    "frames": 61,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 98.75
+   },
+   {
+    "msg": "MSG3",
+    "direction": "up",
+    "octets": 6678,
+    "segments": 29,
+    "retransmissions": 1,
+    "rtts": 29,
+    "seconds": 71.189,
+    "ok": true
+   },
+   {
+    "msg": "MSG4",
+    "direction": "down",
+    "octets": 10186,
+    "frames": 54,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 88.564
+   },
+   {
+    "msg": "MSG5",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 5.774,
+    "ok": true
+   },
+   {
+    "msg": "MSG6",
+    "direction": "down",
+    "octets": 114,
+    "frames": 2,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 1.127
+   },
+   {
+    "msg": "MSG7",
+    "direction": "up",
+    "octets": 194,
+    "segments": 1,
+    "retransmissions": 0,
+    "rtts": 1,
+    "seconds": 1.995,
+    "ok": true
+   },
+   {
+    "msg": "MSG7f",
+    "direction": "down",
+    "octets": 146,
+    "frames": 2,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 1.432
+   },
+   {
+    "msg": "MSG8",
+    "direction": "up",
+    "octets": 34,
+    "segments": 1,
+    "retransmissions": 0,
+    "rtts": 1,
+    "seconds": 0.889,
+    "ok": true
+   },
+   {
+    "msg": "MSG8",
+    "direction": "down",
+    "octets": 66,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 0.155
+   }
+  ],
+  "sdls": {
+   "user": true,
+   "ground": true
+  },
+  "user_timing_ms": {
+   "kem_encaps": 4.665,
+   "kem_keygen": 0.478,
+   "hybrid_sign": 1.355,
+   "hybrid_verify": 0.98,
+   "kem_decaps": 0.638,
+   "unwrap": 0.04
+  },
+  "ground_timing_ms": {
+   "hybrid_verify": 0.349,
+   "kem_decaps": 0.085,
+   "kem_encaps": 0.652,
+   "hybrid_sign": 0.308,
+   "unwrap": 0.343,
+   "wrap": 0.075
+  },
+  "serving_satellite": "0x101",
+  "run": 1,
+  "started": "2026-11-16 12:31:20"
+ },
+ {
+  "mode": "ref",
+  "ok": true,
+  "seconds": 400.669,
+  "sk_user": "6f46abbfaafdbf7fb88b5adab3b711166b57c00e0e3c600919bae845f7bbb97b",
+  "sk_ground": "dcfe94c994ad46865ed4efae3d956ab1ad0f3ef3d6398a9944648101e73d65ff",
+  "sk_session": "6f46abbfaafdbf7fb88b5adab3b711166b57c00e0e3c600919bae845f7bbb97b",
+  "octets_total": 34546,
+  "uplink_segments": 67,
+  "uplink_retransmissions": 6,
+  "downlink_frames": 137,
+  "downlink_lost": 0,
+  "downlink_naks": 0,
+  "downlink_repaired": 0,
+  "messages": [
+   {
+    "msg": "MSG1",
+    "direction": "up",
+    "octets": 5692,
+    "segments": 28,
+    "retransmissions": 1,
+    "rtts": 28,
+    "seconds": 69.684,
+    "ok": true
+   },
+   {
+    "msg": "MSG2",
+    "direction": "down",
+    "octets": 11402,
+    "frames": 71,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 114.302
+   },
+   {
+    "msg": "MSG3",
+    "direction": "up",
+    "octets": 6678,
+    "segments": 33,
+    "retransmissions": 2,
+    "rtts": 33,
+    "seconds": 87.398,
+    "ok": true
+   },
+   {
+    "msg": "MSG4",
+    "direction": "down",
+    "octets": 10186,
+    "frames": 62,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 101.528
+   },
+   {
+    "msg": "MSG5",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 6.214,
+    "ok": true
+   },
+   {
+    "msg": "MSG6",
+    "direction": "down",
+    "octets": 114,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 1.955
+   },
+   {
+    "msg": "MSG7",
+    "direction": "up",
+    "octets": 194,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 9.366,
+    "ok": true
+   },
+   {
+    "msg": "MSG7f",
+    "direction": "down",
+    "octets": 146,
+    "frames": 2,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 2.012
+   },
+   {
+    "msg": "MSG8",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 6.177,
+    "ok": true
+   },
+   {
+    "msg": "MSG8",
+    "direction": "down",
+    "octets": 66,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 2.018
+   }
+  ],
+  "sdls": {
+   "user": true,
+   "ground": true
+  },
+  "user_timing_ms": {
+   "kem_encaps": 0.272,
+   "kem_keygen": 0.142,
+   "hybrid_sign": 0.385,
+   "hybrid_verify": 0.985,
+   "kem_decaps": 0.642,
+   "unwrap": 0.057
+  },
+  "ground_timing_ms": {
+   "hybrid_verify": 0.712,
+   "kem_decaps": 0.26,
+   "kem_encaps": 2.162,
+   "hybrid_sign": 3.022,
+   "unwrap": 0.248,
+   "wrap": 0.092
+  },
+  "serving_satellite": "0x101",
+  "run": 2,
+  "started": "2026-11-16 12:38:01"
+ },
+ {
+  "mode": "ref",
+  "ok": true,
+  "seconds": 400.172,
+  "sk_user": "e14013a44dbe984036e9af706975fe593bed3e77cf0465787e0bc5c3adcb4061",
+  "sk_ground": "1b1f12b3e1f138b16a07617db4c45d9e38cfe04b3f6f4a146539358df8ec5e1f",
+  "sk_session": "e14013a44dbe984036e9af706975fe593bed3e77cf0465787e0bc5c3adcb4061",
+  "octets_total": 34546,
+  "uplink_segments": 67,
+  "uplink_retransmissions": 6,
+  "downlink_frames": 135,
+  "downlink_lost": 0,
+  "downlink_naks": 0,
+  "downlink_repaired": 0,
+  "messages": [
+   {
+    "msg": "MSG1",
+    "direction": "up",
+    "octets": 5692,
+    "segments": 28,
+    "retransmissions": 1,
+    "rtts": 28,
+    "seconds": 69.438,
+    "ok": true
+   },
+   {
+    "msg": "MSG2",
+    "direction": "down",
+    "octets": 11402,
+    "frames": 70,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 114.201
+   },
+   {
+    "msg": "MSG3",
+    "direction": "up",
+    "octets": 6678,
+    "segments": 33,
+    "retransmissions": 2,
+    "rtts": 33,
+    "seconds": 87.288,
+    "ok": true
+   },
+   {
+    "msg": "MSG4",
+    "direction": "down",
+    "octets": 10186,
+    "frames": 62,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 101.537
+   },
+   {
+    "msg": "MSG5",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 6.143,
+    "ok": true
+   },
+   {
+    "msg": "MSG6",
+    "direction": "down",
+    "octets": 114,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 2.036
+   },
+   {
+    "msg": "MSG7",
+    "direction": "up",
+    "octets": 194,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 9.365,
+    "ok": true
+   },
+   {
+    "msg": "MSG7f",
+    "direction": "down",
+    "octets": 146,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 1.951
+   },
+   {
+    "msg": "MSG8",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 6.221,
+    "ok": true
+   },
+   {
+    "msg": "MSG8",
+    "direction": "down",
+    "octets": 66,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 1.971
+   }
+  ],
+  "sdls": {
+   "user": true,
+   "ground": true
+  },
+  "user_timing_ms": {
+   "kem_encaps": 0.775,
+   "kem_keygen": 0.564,
+   "hybrid_sign": 0.96,
+   "hybrid_verify": 0.871,
+   "kem_decaps": 0.694,
+   "unwrap": 0.067
+  },
+  "ground_timing_ms": {
+   "hybrid_verify": 1.204,
+   "kem_decaps": 0.267,
+   "kem_encaps": 2.531,
+   "hybrid_sign": 1.194,
+   "unwrap": 0.213,
+   "wrap": 0.11
+  },
+  "serving_satellite": "0x101",
+  "run": 3,
+  "started": "2026-11-16 12:44:41"
+ },
+ {
+  "mode": "ref",
+  "ok": true,
+  "seconds": 400.308,
+  "sk_user": "148ef167d90ba45fe55693066cf7e8de906f7a5e6f1cff8cf4f22bf2396e9360",
+  "sk_ground": "da118b463c4bc772cf0fd0f4e8da5eb3ea3fd640187a06a73fe02e9bd43003b4",
+  "sk_session": "148ef167d90ba45fe55693066cf7e8de906f7a5e6f1cff8cf4f22bf2396e9360",
+  "octets_total": 34546,
+  "uplink_segments": 67,
+  "uplink_retransmissions": 6,
+  "downlink_frames": 135,
+  "downlink_lost": 0,
+  "downlink_naks": 0,
+  "downlink_repaired": 0,
+  "messages": [
+   {
+    "msg": "MSG1",
+    "direction": "up",
+    "octets": 5692,
+    "segments": 28,
+    "retransmissions": 1,
+    "rtts": 28,
+    "seconds": 69.58,
+    "ok": true
+   },
+   {
+    "msg": "MSG2",
+    "direction": "down",
+    "octets": 11402,
+    "frames": 70,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 114.3
+   },
+   {
+    "msg": "MSG3",
+    "direction": "up",
+    "octets": 6678,
+    "segments": 33,
+    "retransmissions": 2,
+    "rtts": 33,
+    "seconds": 87.128,
+    "ok": true
+   },
+   {
+    "msg": "MSG4",
+    "direction": "down",
+    "octets": 10186,
+    "frames": 62,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 101.616
+   },
+   {
+    "msg": "MSG5",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 6.196,
+    "ok": true
+   },
+   {
+    "msg": "MSG6",
+    "direction": "down",
+    "octets": 114,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 1.997
+   },
+   {
+    "msg": "MSG7",
+    "direction": "up",
+    "octets": 194,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 9.309,
+    "ok": true
+   },
+   {
+    "msg": "MSG7f",
+    "direction": "down",
+    "octets": 146,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 1.971
+   },
+   {
+    "msg": "MSG8",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 6.235,
+    "ok": true
+   },
+   {
+    "msg": "MSG8",
+    "direction": "down",
+    "octets": 66,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 1.955
+   }
+  ],
+  "sdls": {
+   "user": true,
+   "ground": true
+  },
+  "user_timing_ms": {
+   "kem_encaps": 0.328,
+   "kem_keygen": 0.136,
+   "hybrid_sign": 0.389,
+   "hybrid_verify": 1.196,
+   "kem_decaps": 0.783,
+   "unwrap": 0.217
+  },
+  "ground_timing_ms": {
+   "hybrid_verify": 1.081,
+   "kem_decaps": 0.253,
+   "kem_encaps": 2.679,
+   "hybrid_sign": 1.259,
+   "unwrap": 0.084,
+   "wrap": 0.12
+  },
+  "serving_satellite": "0x101",
+  "run": 4,
+  "started": "2026-11-16 12:51:21"
+ },
+ {
+  "mode": "ref",
+  "ok": true,
+  "seconds": 400.428,
+  "sk_user": "23e8eebc398d030817e307d0a686255e76730e2330bc015c9d0787bbc46752ee",
+  "sk_ground": "3215fe72067a6526f692ebb03110cf6bfd4866bb080741c6b0ae79f6fe3cf1db",
+  "sk_session": "23e8eebc398d030817e307d0a686255e76730e2330bc015c9d0787bbc46752ee",
+  "octets_total": 34546,
+  "uplink_segments": 67,
+  "uplink_retransmissions": 6,
+  "downlink_frames": 135,
+  "downlink_lost": 0,
+  "downlink_naks": 0,
+  "downlink_repaired": 0,
+  "messages": [
+   {
+    "msg": "MSG1",
+    "direction": "up",
+    "octets": 5692,
+    "segments": 28,
+    "retransmissions": 1,
+    "rtts": 28,
+    "seconds": 69.335,
+    "ok": true
+   },
+   {
+    "msg": "MSG2",
+    "direction": "down",
+    "octets": 11402,
+    "frames": 70,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 114.322
+   },
+   {
+    "msg": "MSG3",
+    "direction": "up",
+    "octets": 6678,
+    "segments": 33,
+    "retransmissions": 2,
+    "rtts": 33,
+    "seconds": 87.577,
+    "ok": true
+   },
+   {
+    "msg": "MSG4",
+    "direction": "down",
+    "octets": 10186,
+    "frames": 62,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 101.498
+   },
+   {
+    "msg": "MSG5",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 6.215,
+    "ok": true
+   },
+   {
+    "msg": "MSG6",
+    "direction": "down",
+    "octets": 114,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 1.951
+   },
+   {
+    "msg": "MSG7",
+    "direction": "up",
+    "octets": 194,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 9.294,
+    "ok": true
+   },
+   {
+    "msg": "MSG7f",
+    "direction": "down",
+    "octets": 146,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 2.035
+   },
+   {
+    "msg": "MSG8",
+    "direction": "up",
+    "octets": 34,
+    "segments": 2,
+    "retransmissions": 1,
+    "rtts": 2,
+    "seconds": 6.233,
+    "ok": true
+   },
+   {
+    "msg": "MSG8",
+    "direction": "down",
+    "octets": 66,
+    "frames": 1,
+    "lost": 0,
+    "naks": 0,
+    "repaired": 0,
+    "seconds": 1.95
+   }
+  ],
+  "sdls": {
+   "user": true,
+   "ground": true
+  },
+  "user_timing_ms": {
+   "kem_encaps": 0.48,
+   "kem_keygen": 0.29,
+   "hybrid_sign": 1.371,
+   "hybrid_verify": 1.179,
+   "kem_decaps": 0.737,
+   "unwrap": 0.095
+  },
+  "ground_timing_ms": {
+   "hybrid_verify": 0.712,
+   "kem_decaps": 0.113,
+   "kem_encaps": 1.116,
+   "hybrid_sign": 0.904,
+   "unwrap": 0.281,
+   "wrap": 0.346
+  },
+  "serving_satellite": "0x101",
+  "run": 5,
+  "started": "2026-11-16 12:58:02"
+ }
+]

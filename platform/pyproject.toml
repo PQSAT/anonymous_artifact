@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pqsat-testbed"
+version = "0.1.0"
+description = "Satellite constellation security testbed: NASA cFS flight core with CCSDS, SDLS (NASA CryptoLib) and a post quantum three party authentication protocol, emulated or on hardware, with an API and a GUI"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["fastapi>=0.100", "uvicorn>=0.20", "websockets>=10", "cryptography>=41", "numpy", "pandas"]
+
+[project.scripts]
+pqsat-testbed = "pqsat_testbed.api:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pqsat_testbed*"]
+
+[tool.setuptools.package-data]
+pqsat_testbed = ["gui/*.html"]

@@ -1,0 +1,42 @@
+[
+ {
+  "mode": "ref",
+  "ok": false,
+  "error": "timeout waiting for MSG2",
+  "seconds": null,
+  "run": 1,
+  "started": "2026-11-16 13:54:19"
+ },
+ {
+  "mode": "ref",
+  "ok": false,
+  "error": "MSG1 not acknowledged by the satellite",
+  "seconds": null,
+  "run": 2,
+  "started": "2026-11-16 13:55:04"
+ },
+ {
+  "mode": "ref",
+  "ok": false,
+  "error": "MSG1 not acknowledged by the satellite",
+  "seconds": null,
+  "run": 3,
+  "started": "2026-11-16 13:55:48"
+ },
+ {
+  "mode": "ref",
+  "ok": false,
+  "error": "MSG1 not acknowledged by the satellite",
+  "seconds": null,
+  "run": 4,
+  "started": "2026-11-16 13:56:33"
+ },
+ {
+  "mode": "ref",
+  "ok": false,
+  "error": "MSG1 not acknowledged by the satellite",
+  "seconds": null,
+  "run": 5,
+  "started": "2026-11-16 13:57:18"
+ }
+]

@@ -1,0 +1,41 @@
+[GS] COP-1 ready, V(S)=0
+[USER1] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (595 ms)
+PASS link up, COP-1, clock
+[USER1] message to GS: accepted by satellite
+PASS genuine user message delivered before the attack
+
+--- R1 one first segment, never finished ---
+
+[GS] message from USER1: before
+PASS the link layer accepts the adversary's first segment (clear link, sequence number overheard)
+PASS the satellite frees the state by its inactivity timer  [held 31.6 s]
+
+--- R2 first segments repeated every 8 s for 48 s ---
+[GS] PING tc_seq 1: OK  (579 ms)
+[GS] PING tc_seq 2: OK  (575 ms)
+[GS] PING tc_seq 3: OK  (577 ms)
+[GS] PING tc_seq 4: OK  (576 ms)
+[GS] PING tc_seq 5: OK  (575 ms)
+PASS the state is held for the whole attack (no timeout fires while segments keep coming)  [5 first segments]
+PASS the ground station's commands are executed all the time: one buffer per virtual channel  [5 of 5 PING acknowledged]
+PASS the satellite reports no reassembly overflow and keeps sending housekeeping
+
+--- R3 the genuine user after the attack ---
+
+[GS] message from USER1: after
+[USER1] message to GS: accepted by satellite
+PASS the user's next message is delivered while the adversary's state is still held
+PASS it replaced the held state: no stale segment was joined to it
+
+--- R4 the same on the protected link ---
+[USER1] SDLS started: TC VC1 protected on send, TM VC2 verified on receive
+[USER1] message to GS: accepted by satellite
+PASS protected user message delivered
+PASS the adversary's clear first segment is rejected and makes no reassembly state  [SDLS: TC on VC1 rejected (CryptoLib -56)]
+[USER1] COP-1 ready, V(S)=9
+[USER1] message to GS: accepted by satellite
+PASS the protected user link still works
+
+12/12 checks passed
+rc=0

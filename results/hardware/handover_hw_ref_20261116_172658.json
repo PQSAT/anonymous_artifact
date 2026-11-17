@@ -1,0 +1,24 @@
+[
+ {
+  "run": 1,
+  "started": "2026-11-16 17:28:29",
+  "mode": "ref",
+  "handshake": {
+   "ok": true,
+   "seconds": 488.649,
+   "serving": "0x102"
+  },
+  "order": {
+   "result": "DELIVERED (ACK lost)",
+   "seconds": 21.2
+  },
+  "handover_tries": 6,
+  "handover": {
+   "seconds": 180.3,
+   "user_heard_sat1": true,
+   "traffic_delivered": false,
+   "derived_key_used": true,
+   "handshake_would_cost_s": 488.649
+  }
+ }
+]

@@ -1,0 +1,13 @@
+{
+ "users": [
+  {
+   "name": "USER1",
+   "id": 17,
+   "lat": 54.584,
+   "lon": -5.933,
+   "alt_km": 0.02,
+   "radio": "/dev/ttyACM1",
+   "serving_policy": "longest_remaining"
+  }
+ ]
+}

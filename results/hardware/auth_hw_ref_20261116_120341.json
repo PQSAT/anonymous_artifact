@@ -1,0 +1,18 @@
+[
+ {
+  "mode": "ref",
+  "ok": false,
+  "error": "MSG5 not acknowledged by the satellite",
+  "seconds": null,
+  "run": 1,
+  "started": "2026-11-16 12:14:38"
+ },
+ {
+  "mode": "ref",
+  "ok": false,
+  "error": "MSG1 not acknowledged by the satellite",
+  "seconds": null,
+  "run": 2,
+  "started": "2026-11-16 12:15:42"
+ }
+]

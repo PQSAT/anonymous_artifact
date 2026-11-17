@@ -1,0 +1,38 @@
+[GS] COP-1 ready, V(S)=0
+[USER1] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (592 ms)
+PASS chain up, COP-1, clock
+PASS SAT-3 took the clock over two hops
+
+--- handshake of the user on SAT-3 and hand over to SAT-2 (the traffic the adversary records) ---
+[USER1] SDLS started: TC VC1 protected on send, TM VC2 verified on receive
+[GS] SDLS started: TC VC0 protected on send, TM VC4 verified on receive
+PASS handshake completed through the chain  [307.876 s]
+PASS SAT-1 keyed the ground link
+[GS] FORWARD tc_seq 1: OK  (5900 ms)
+PASS hand over SAT-3 to SAT-2 accepted
+PASS SAT-2 took the user over
+
+--- K1 the adversary reads the link SAT-3 to SAT-2 ---
+PASS it opens the frames of that link with the pairwise key  [131 of 131 frames]
+PASS the session key, the ground link key and the next link key are in nothing it read
+PASS it sees the hand over transfer (4456 octets, ML-KEM ciphertext and wrap) and cannot open it
+
+--- K2 a forged key transfer ---
+PASS SAT-2 accepts the frames (the ISL key is the adversary's) and rejects the transfer by its signature  [ISL: key transfer rejected (signature)]
+PASS no user was taken over
+
+--- K3 the recorded hand over transfer sent again ---
+PASS SAT-2 rejects it as a replay inside the freshness window  [ISL: key transfer rejected (replayed)]
+PASS the user link was not keyed a second time
+
+--- K4 a forged hand over order ---
+PASS an order to hand the user on, forged on the compromised link, is refused: no key of the user  [handover refused: the order does not verify under the key of this user]
+
+--- K5 what the key does give, and that it stays on this pair ---
+   finding: a command forged on the compromised link for SAT-2 was executed [ISL: forwarded command 0x01 (tc seq 10) executed, status 0]
+PASS K5 recorded (a forwarded command is authenticated by the ISL key of the hop)
+PASS the other pair rejects frames made with this key: the compromise does not spread
+
+16/16 checks passed
+rc=0

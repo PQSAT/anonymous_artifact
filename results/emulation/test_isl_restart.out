@@ -1,0 +1,134 @@
+satellite satsim_sf7_pin, 10 protected ISL frames per generation
+
+=== A. restart with the same key file ===
+[GS] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (234 ms)
+PASS constellation up
+[GS] FORWARD tc_seq 1: OK  (183 ms)
+[GS] FORWARD tc_seq 2: OK  (303 ms)
+[GS] FORWARD tc_seq 3: OK  (302 ms)
+[GS] FORWARD tc_seq 4: OK  (302 ms)
+[GS] FORWARD tc_seq 5: OK  (302 ms)
+[GS] FORWARD tc_seq 6: OK  (303 ms)
+[GS] FORWARD tc_seq 7: OK  (302 ms)
+[GS] FORWARD tc_seq 8: OK  (302 ms)
+[GS] FORWARD tc_seq 9: OK  (302 ms)
+[GS] FORWARD tc_seq 10: OK  (304 ms)
+PASS forwarded commands executed over the protected ISL  [10 of 10, 10 frames recorded]
+[GS] closed
+[GS] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (248 ms)
+PASS constellation up after the restart
+[GS] FORWARD tc_seq 1: OK  (223 ms)
+[GS] FORWARD tc_seq 2: OK  (222 ms)
+[GS] FORWARD tc_seq 3: OK  (222 ms)
+[GS] FORWARD tc_seq 4: OK  (242 ms)
+[GS] FORWARD tc_seq 5: OK  (243 ms)
+[GS] FORWARD tc_seq 6: OK  (242 ms)
+[GS] FORWARD tc_seq 7: OK  (228 ms)
+[GS] FORWARD tc_seq 8: OK  (222 ms)
+[GS] FORWARD tc_seq 9: OK  (222 ms)
+[GS] FORWARD tc_seq 10: OK  (242 ms)
+   frames recorded before the restart and replayed after it: 10 of 10 accepted (10 forwarded commands executed again), 0 rejected
+   IVs used again under the same key after the restart: 10 of 10; first counter after the restart: 1
+PASS A. with the same key the IVs repeat after a restart  [10 of 10]
+PASS A. with the same key recorded frames are accepted again after a restart  [10 of 10 accepted]
+[GS] closed
+
+=== B. a new key file at every restart, 5 restarts ===
+[GS] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (229 ms)
+PASS constellation up
+[GS] FORWARD tc_seq 1: OK  (182 ms)
+[GS] FORWARD tc_seq 2: OK  (302 ms)
+[GS] FORWARD tc_seq 3: OK  (303 ms)
+[GS] FORWARD tc_seq 4: OK  (304 ms)
+[GS] FORWARD tc_seq 5: OK  (303 ms)
+[GS] FORWARD tc_seq 6: OK  (306 ms)
+[GS] FORWARD tc_seq 7: OK  (303 ms)
+[GS] FORWARD tc_seq 8: OK  (304 ms)
+[GS] FORWARD tc_seq 9: OK  (303 ms)
+[GS] FORWARD tc_seq 10: OK  (301 ms)
+[GS] closed
+[GS] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (249 ms)
+[GS] FORWARD tc_seq 1: OK  (188 ms)
+[GS] FORWARD tc_seq 2: OK  (303 ms)
+[GS] FORWARD tc_seq 3: OK  (303 ms)
+[GS] FORWARD tc_seq 4: OK  (305 ms)
+[GS] FORWARD tc_seq 5: OK  (303 ms)
+[GS] FORWARD tc_seq 6: OK  (303 ms)
+[GS] FORWARD tc_seq 7: OK  (303 ms)
+[GS] FORWARD tc_seq 8: OK  (302 ms)
+[GS] FORWARD tc_seq 9: OK  (304 ms)
+[GS] FORWARD tc_seq 10: OK  (303 ms)
+   restart 1: key fingerprint 5d3313d6b8c76a41, first frame counter 1, 10 of 10 recorded frames rejected, 0 executed, 10 of 10 new commands executed, key and IV pairs repeated 0
+PASS B. restart 1: link up and new traffic accepted
+[GS] closed
+[GS] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (249 ms)
+[GS] FORWARD tc_seq 1: OK  (178 ms)
+[GS] FORWARD tc_seq 2: OK  (303 ms)
+[GS] FORWARD tc_seq 3: OK  (304 ms)
+[GS] FORWARD tc_seq 4: OK  (302 ms)
+[GS] FORWARD tc_seq 5: OK  (303 ms)
+[GS] FORWARD tc_seq 6: OK  (303 ms)
+[GS] FORWARD tc_seq 7: OK  (305 ms)
+[GS] FORWARD tc_seq 8: OK  (304 ms)
+[GS] FORWARD tc_seq 9: OK  (305 ms)
+[GS] FORWARD tc_seq 10: OK  (302 ms)
+   restart 2: key fingerprint 7c21085f31fd20bd, first frame counter 1, 10 of 10 recorded frames rejected, 0 executed, 10 of 10 new commands executed, key and IV pairs repeated 0
+PASS B. restart 2: link up and new traffic accepted
+[GS] closed
+[GS] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (249 ms)
+[GS] FORWARD tc_seq 1: OK  (178 ms)
+[GS] FORWARD tc_seq 2: OK  (305 ms)
+[GS] FORWARD tc_seq 3: OK  (303 ms)
+[GS] FORWARD tc_seq 4: OK  (302 ms)
+[GS] FORWARD tc_seq 5: OK  (305 ms)
+[GS] FORWARD tc_seq 6: OK  (303 ms)
+[GS] FORWARD tc_seq 7: OK  (303 ms)
+[GS] FORWARD tc_seq 8: OK  (306 ms)
+[GS] FORWARD tc_seq 9: OK  (298 ms)
+[GS] FORWARD tc_seq 10: OK  (303 ms)
+   restart 3: key fingerprint 12c618cb3b09624f, first frame counter 1, 10 of 10 recorded frames rejected, 0 executed, 10 of 10 new commands executed, key and IV pairs repeated 0
+PASS B. restart 3: link up and new traffic accepted
+[GS] closed
+[GS] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (231 ms)
+[GS] FORWARD tc_seq 1: OK  (177 ms)
+[GS] FORWARD tc_seq 2: OK  (303 ms)
+[GS] FORWARD tc_seq 3: OK  (305 ms)
+[GS] FORWARD tc_seq 4: OK  (302 ms)
+[GS] FORWARD tc_seq 5: OK  (304 ms)
+[GS] FORWARD tc_seq 6: OK  (303 ms)
+[GS] FORWARD tc_seq 7: OK  (303 ms)
+[GS] FORWARD tc_seq 8: OK  (303 ms)
+[GS] FORWARD tc_seq 9: OK  (305 ms)
+[GS] FORWARD tc_seq 10: OK  (302 ms)
+   restart 4: key fingerprint 3a1e6a759defad9b, first frame counter 1, 10 of 10 recorded frames rejected, 0 executed, 10 of 10 new commands executed, key and IV pairs repeated 0
+PASS B. restart 4: link up and new traffic accepted
+[GS] closed
+[GS] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (229 ms)
+[GS] FORWARD tc_seq 1: OK  (194 ms)
+[GS] FORWARD tc_seq 2: OK  (301 ms)
+[GS] FORWARD tc_seq 3: OK  (305 ms)
+[GS] FORWARD tc_seq 4: OK  (301 ms)
+[GS] FORWARD tc_seq 5: OK  (303 ms)
+[GS] FORWARD tc_seq 6: OK  (303 ms)
+[GS] FORWARD tc_seq 7: OK  (303 ms)
+[GS] FORWARD tc_seq 8: OK  (303 ms)
+[GS] FORWARD tc_seq 9: OK  (302 ms)
+[GS] FORWARD tc_seq 10: OK  (304 ms)
+   restart 5: key fingerprint 8ea6ba03e08d20c3, first frame counter 1, 10 of 10 recorded frames rejected, 0 executed, 10 of 10 new commands executed, key and IV pairs repeated 0
+PASS B. restart 5: link up and new traffic accepted
+[GS] closed
+PASS B. every restart has a new key fingerprint
+PASS B. the frame counter starts at one after every restart
+PASS B. every frame recorded before a restart is rejected after it  [50 of 50]
+PASS B. no key and IV pair repeats  [60 pairs]
+
+15/15 checks passed
+exit 0

@@ -1,0 +1,25 @@
+PASS ISL protected on both satellites
+[GS] COP-1 ready, V(S)=0
+[GS] SET_TIME tc_seq 0: OK  (594 ms)
+PASS COP-1 and clock on SAT-1
+PASS genuine ISL traffic accepted: SAT-2 takes its clock over the ISL
+PASS adversary captured protected ISL frames  [2 frames]
+
+--- I1 replay ---
+PASS I1 replayed frames rejected by the anti replay check  [2 of 2]
+PASS I1 the same frame replayed 11 s later is rejected again
+
+--- I2 modification ---
+PASS I2 one bit flipped in the data field: rejected
+PASS I2 one bit flipped in the MAC: rejected
+PASS I2 one bit flipped in the security header: rejected
+
+--- I3 forgery without the key ---
+PASS I3 unprotected frames with SAT-1's identity are rejected on the protected link  [2 of 2]
+PASS I3 no session key and no clock were taken from them
+
+--- I4 the live link survives ---
+PASS I4 genuine frames from SAT-1 are still accepted after the attacks
+
+12/12 checks passed
+rc=0

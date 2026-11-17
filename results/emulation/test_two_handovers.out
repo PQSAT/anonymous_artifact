@@ -1,0 +1,134 @@
+--- 1. chain up ---
+PASS ground hears SAT-1, user hears SAT-3
+PASS SAT-2 has two neighbours with SDLS keyed
+[GS] COP-1 ready, V(S)=0
+[USER1] COP-1 ready, V(S)=0
+PASS COP-1 on both radio links
+[GS] SET_TIME tc_seq 0: OK  (594 ms)
+PASS clock set on SAT-1 by the ground
+PASS SAT-2 took the clock from SAT-1
+PASS SAT-3 took the clock from SAT-2 (two hops)
+
+--- 2. handshake user on SAT-3, ground on SAT-1, through SAT-2 ---
+   MSG1   up     5692 B   24 segments  0 retx    48.0 s
+   MSG2   down  11402 B   60 frames    0 lost  0 NAK 0 repaired    94.8 s
+   MSG3   up     6678 B   29 segments  1 retx    63.6 s
+   MSG4   down  10186 B   54 frames    0 lost  0 NAK 0 repaired    84.8 s
+   MSG5   up       34 B    2 segments  1 retx     5.5 s
+   MSG6   down    114 B    1 frames    0 lost  0 NAK 0 repaired     0.8 s
+   MSG7   up      194 B    2 segments  1 retx     8.5 s
+   MSG7f  down    146 B    1 frames    0 lost  0 NAK 0 repaired     1.0 s
+   MSG8   up       34 B    1 segments  0 retx     0.8 s
+[USER1] SDLS started: TC VC1 protected on send, TM VC2 verified on receive
+   MSG8   down     66 B    1 frames    0 lost  0 NAK 0 repaired     0.4 s
+[GS] SDLS started: TC VC0 protected on send, TM VC4 verified on receive
+   total 34546 B, 58 uplink segments (3 retx), 117 downlink frames (0 lost), 308.2 s, keys agree: True
+PASS handshake completed through two ISL hops, keys agree  [308.182 s]
+PASS SAT-2 passed the auth messages on in both directions
+PASS SAT-3 sent the ground link key end to end to the feeder
+PASS SAT-2 relayed the transfer and could not open it: no key, no ground link association
+PASS SAT-1 keyed the ground link from the derived key that crossed two ISLs
+PASS the session key itself appears in no ISL frame, in clear or as a 32 octet field
+PASS SAT-3 user link transmit association started
+PASS SAT-1 ground link transmit association started
+   ISL frames sent this handshake: {'sat1': 64, 'sat2': 172, 'sat3': 108}
+
+--- 3. protected traffic end to end and a command two hops away ---
+[USER1] message to GS: accepted by satellite
+PASS user message accepted under SDLS
+
+[GS] message from USER1: chain payload user to ground via SAT-3 SAT-2 SAT-1
+PASS ground received it
+PASS clear text in no ISL frame
+[GS] FORWARD tc_seq 1: OK  (747 ms)
+PASS PING forwarded SAT-1 > SAT-2 > SAT-3 executed  [OK]
+PASS acknowledgement came back two hops to the ground  [OK]
+
+--- 4. hand over SAT-3 to SAT-2 ---
+[GS] FORWARD tc_seq 2: NOT_ALLOWED  (5892 ms)
+PASS order made with the ground link key refused by SAT-3  [NOT_ALLOWED]
+[GS] FORWARD tc_seq 3: NOT_ALLOWED  (5893 ms)
+PASS order made with another session key refused by SAT-3  [NOT_ALLOWED]
+PASS SAT-2 took no user over on the forged orders
+[GS] FORWARD tc_seq 4: OK  (10816 ms)
+PASS order with the MAC under this user's key accepted by SAT-3  [OK]
+PASS SAT-3 erased the session key and its user link association
+PASS SAT-2 took the user over with the derived key
+PASS the key handed over is derived, it is not the session key
+[USER1] COP-1 ready, V(S)=0
+PASS user hears SAT-2 after retuning
+[USER1] SDLS started: TC VC1 protected on send, TM VC2 verified on receive
+[USER1] message to GS: accepted by satellite
+
+[GS] message from USER1: after chain handover
+PASS protected message delivered on the new link under the derived key
+
+--- 5. second hand over of the same session, SAT-2 to SAT-1 ---
+[GS] FORWARD tc_seq 5: NOT_ALLOWED  (958 ms)
+PASS order under the first session key refused by SAT-2 after the first hand over  [NOT_ALLOWED]
+PASS SAT-1 took no user over on that order
+[GS] FORWARD tc_seq 6: OK  (5865 ms)
+PASS order with the MAC under the key of the first hand over accepted by SAT-2  [OK]
+PASS SAT-2 erased its key and its user link association
+PASS SAT-1 took the user over with the second derived key
+PASS the three keys of the chain differ
+[USER1] COP-1 ready, V(S)=0
+PASS user hears SAT-1 after the second retuning
+[USER1] SDLS started: TC VC1 protected on send, TM VC2 verified on receive
+
+[GS] message from USER1: after second handover
+[USER1] message to GS: accepted by satellite
+PASS protected message delivered after the second hand over under the second derived key
+   second hand over, order to delivered message: 18.9 s
+SAT-1 ISL lines:
+    ISL: neighbour SAT 0102 on TM VC5, SDLS keyed from the ISL key, ground station on own radio
+    ISL: auth message from 0103 for terminal 0001, 11402 bytes, downlinked
+    ISL: auth message from 0001 for SAT 0103 forwarded, 6678 bytes
+    ISL: auth message from 0103 for terminal 0001, 114 bytes, downlinked
+    ISL: auth message from 0001 for SAT 0103 forwarded, 194 bytes
+    ISL: auth message from 0103 for terminal 0001, 66 bytes, downlinked
+    ISL: ground link key received from SAT 0103, keying the ground station link
+    ISL: relay 50 bytes for terminal 0001, downlinked
+    ISL: command 0x01 (tc seq 1) forwarded to SAT 0103
+    ISL: command 0x0D (tc seq 2) forwarded to SAT 0103
+    ISL: command 0x0D (tc seq 3) forwarded to SAT 0103
+    ISL: command 0x0D (tc seq 4) forwarded to SAT 0103
+    ISL: relay 20 bytes for terminal 0001, downlinked
+    ISL: command 0x0D (tc seq 5) forwarded to SAT 0102
+    ISL: command 0x0D (tc seq 6) forwarded to SAT 0102
+    ISL: user 0011 taken over from SAT 0102, keying the user link (handover)
+SAT-2 ISL lines:
+    ISL: neighbour SAT 0101 on TM VC3, SDLS keyed from the ISL key, ground station via this neighbour
+    ISL: neighbour SAT 0103 on TM VC5, SDLS keyed from the ISL key, ground station via another neighbour
+    ISL: the feeder is SAT 0101
+    ISL: clock set from SAT 0101 (1794892302)
+    ISL: auth message from 0103 for 0001 passed on to SAT 0101
+    ISL: auth message from 0001 for 0103 passed on to SAT 0103
+    ISL: auth message from 0103 for 0001 passed on to SAT 0101
+    ISL: auth message from 0001 for 0103 passed on to SAT 0103
+    ISL: auth message from 0103 for 0001 passed on to SAT 0101
+    ISL: relay from 0011 for 0001 passed on to SAT 0101
+    ISL: user 0011 taken over from SAT 0103, keying the user link (handover)
+    ISL: relay 20 bytes from VC1 for the ground station forwarded
+    ISL: forwarded command 0x0D (tc seq 5) executed, status 3
+    ISL: user 0011 handed to SAT 0101 with a derived key, end to end; session key erased
+    ISL: forwarded command 0x0D (tc seq 6) executed, status 0
+SAT-3 ISL lines:
+    ISL: neighbour SAT 0102 on TM VC3, SDLS keyed from the ISL key, ground station via this neighbour
+    ISL: the feeder is SAT 0101
+    ISL: clock set from SAT 0102 (1794892302)
+    ISL: auth message for the ground station sent to SAT 0102, 11402 bytes
+    ISL: auth message from 0001 for this satellite, 6678 bytes
+    ISL: auth message for the ground station sent to SAT 0102, 114 bytes
+    ISL: auth message from 0001 for this satellite, 194 bytes
+    ISL: auth message for the ground station sent to SAT 0102, 66 bytes
+    ISL: ground link key sent end to end to the feeder SAT 0101
+    ISL: relay 50 bytes from VC1 for the ground station forwarded
+    ISL: forwarded command 0x01 (tc seq 1) executed, status 0
+    ISL: forwarded command 0x0D (tc seq 2) executed, status 3
+    ISL: forwarded command 0x0D (tc seq 3) executed, status 3
+    ISL: user 0011 handed to SAT 0102 with a derived key, end to end; session key erased
+    ISL: forwarded command 0x0D (tc seq 4) executed, status 0
+
+36/36 checks passed
+exit 0
